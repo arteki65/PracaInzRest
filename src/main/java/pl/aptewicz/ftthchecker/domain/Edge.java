@@ -5,18 +5,24 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 @Entity
+@NamedQueries({
+		@NamedQuery(name = "Edge.findEdgesInArea", query = "SELECT e FROM Edge e where "
+				+ "e.nodeA.x >= :x1 AND e.nodeA.y >= :y1 AND e.nodeB.x <= :x2 "
+				+ "AND e.nodeB.y <= :y2")})
 public class Edge {
 
 	@Id
 	private Long name;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "nodeAName")
 	private Node nodeA;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "nodeBName")
 	private Node nodeB;
 
