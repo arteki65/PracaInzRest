@@ -31,7 +31,7 @@ public class EdgeController {
 		return edgeRepository.findOne(new Long(edgeId));
 	}
 
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value = "/findEdgesInArea", method = RequestMethod.GET)
 	public List<Edge> getEdgesInArea(@RequestParam("x1") String x1,
 			@RequestParam("x2") String x2, @RequestParam("y1") String y1,
 			@RequestParam("y2") String y2) {
