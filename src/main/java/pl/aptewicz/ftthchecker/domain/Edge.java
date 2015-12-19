@@ -10,9 +10,11 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
-		@NamedQuery(name = "Edge.findEdgesInArea", query = "SELECT e FROM Edge e where "
-				+ "e.nodeA.x >= :x1 AND e.nodeA.y >= :y1 AND e.nodeB.x <= :x2 "
-				+ "AND e.nodeB.y <= :y2")})
+		@NamedQuery(name = "Edge.findEdgesInArea", query = "SELECT e FROM Edge e WHERE "
+				+ "e.nodeA.x >= :x1 AND e.nodeA.y >= :y1 AND e.nodeA.name in "
+				+ "(SELECT d.node FROM Demand d WHERE d.signalCount >= :nodeSize) "
+				+ "AND e.nodeB.x <= :x2 AND e.nodeB.y <= :y2 AND e.nodeB.name in "
+				+ "(SELECT d.node FROM Demand d WHERE d.signalCount >= :nodeSize)")})
 public class Edge {
 
 	@Id
@@ -27,10 +29,6 @@ public class Edge {
 	private Node nodeB;
 
 	private Double length;
-
-	public Edge() {
-		// do nothing, usung by jpa
-	}
 
 	public Long getName() {
 		return name;
