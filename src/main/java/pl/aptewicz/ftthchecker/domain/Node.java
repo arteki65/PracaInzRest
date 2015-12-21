@@ -13,10 +13,6 @@ public class Node {
 
 	private Double y;
 
-	public Node() {
-		// do nothing, using by jpa
-	}
-
 	public Long getName() {
 		return name;
 	}

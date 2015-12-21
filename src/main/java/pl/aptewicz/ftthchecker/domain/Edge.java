@@ -10,11 +10,16 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
-		@NamedQuery(name = "Edge.findEdgesInArea", query = "SELECT e FROM Edge e WHERE "
-				+ "e.nodeA.x >= :x1 AND e.nodeA.y >= :y1 AND e.nodeA.name in "
-				+ "(SELECT d.node FROM Demand d WHERE d.signalCount >= :nodeSize) "
-				+ "AND e.nodeB.x <= :x2 AND e.nodeB.y <= :y2 AND e.nodeB.name in "
-				+ "(SELECT d.node FROM Demand d WHERE d.signalCount >= :nodeSize)")})
+		@NamedQuery(name = "Edge.findEdgesInAreaWithDemand", query = "SELECT e FROM Edge e WHERE "
+				+ "e.nodeA.x >= :x1 AND e.nodeA.y >= :y1 AND e.nodeA.name IN "
+				+ "(SELECT d.node.name FROM Demand d WHERE d.signalCount >= :nodeSize) "
+				+ "AND e.nodeB.x <= :x2 AND e.nodeB.y <= :y2 AND e.nodeB.name IN "
+				+ "(SELECT d.node.name FROM Demand d WHERE d.signalCount >= :nodeSize)"),
+		@NamedQuery(name = "Edge.findEdgesInAreaWithoutDemand", query = "SELECT e from Edge e WHERE "
+				+ "e.nodeA.x >= :x1 AND e.nodeA.y >= :y1 AND e.nodeA.name NOT IN "
+				+ "(SELECT d.node.name FROM Demand d WHERE d.signalCount >= :nodeSize) "
+				+ "AND e.nodeB.x <= :x2 AND e.nodeB.y <= :y2 AND e.nodeB.name NOT IN "
+				+ "(SELECT d.node.name FROM Demand d WHERE d.signalCount >= :nodeSize)")})
 public class Edge {
 
 	@Id

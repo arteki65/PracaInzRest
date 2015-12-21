@@ -1,0 +1,2 @@
+INSERT INTO ZoomMapping VALUES(1, 100, 10);
+INSERT INTO ZoomMapping VALUES(2, 90, 11);

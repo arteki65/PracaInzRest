@@ -12,23 +12,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import pl.aptewicz.ftthchecker.domain.Edge;
-import pl.aptewicz.ftthchecker.repository.EdgeRepository;
+import pl.aptewicz.ftthchecker.service.EdgeServiceInterface;
 
 @RestController
 @Transactional
 @RequestMapping({"/edge"})
 public class EdgeController {
-
-	private EdgeRepository edgeRepository;
+	private EdgeServiceInterface edgeService;
 
 	@Autowired
-	public EdgeController(EdgeRepository edgeRepository) {
-		this.edgeRepository = edgeRepository;
+	public EdgeController(EdgeServiceInterface edgeService) {
+		this.edgeService = edgeService;
 	}
 
 	@RequestMapping(value = "/{edgeId}", method = RequestMethod.GET)
 	public Edge getEdgeById(@PathVariable String edgeId) {
-		return edgeRepository.findOne(new Long(edgeId));
+		return edgeService.findEdgeByName(new Long(edgeId));
 	}
 
 	@RequestMapping(value = "/findEdgesInArea", method = RequestMethod.GET)
@@ -36,7 +35,7 @@ public class EdgeController {
 			@RequestParam("x2") String x2, @RequestParam("y1") String y1,
 			@RequestParam("y2") String y2, @RequestParam("zoom") String zoom) {
 
-		return edgeRepository.findEdgesInArea(Double.valueOf(x1),
+		return edgeService.findEdgesInArea(Double.valueOf(x1),
 				Double.valueOf(y1), Double.valueOf(x2), Double.valueOf(y2),
 				Long.valueOf(Double.valueOf(zoom).longValue()));
 	}
