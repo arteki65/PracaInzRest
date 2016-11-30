@@ -31,6 +31,11 @@ public class EdgeRepositoryImpl implements EdgesInAreaRepository {
 			double y2, long zoom) {
 		ZoomMapping zoomMapping = zoomMappingRepository.findByZoom(zoom);
 
+		if (zoomMapping == null) {
+			zoomMapping = new ZoomMapping();
+			zoomMapping.setNodeSize(new Long(1));
+		}
+
 		Query query = em.createNamedQuery(EDGES_IN_AREA_QUERY);
 
 		query.setParameter("x1", x1);
@@ -49,6 +54,11 @@ public class EdgeRepositoryImpl implements EdgesInAreaRepository {
 		ZoomMapping zoomMapping = zoomMappingRepository.findByZoom(zoom);
 
 		Query query = em.createNamedQuery(EDGES_IN_AREA_WITHOUT_DEMAND_QUERY);
+
+		if (zoomMapping == null) {
+			zoomMapping = new ZoomMapping();
+			zoomMapping.setNodeSize(new Long(1));
+		}
 
 		query.setParameter("x1", x1);
 		query.setParameter("x2", x2);
