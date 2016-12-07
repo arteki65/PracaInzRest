@@ -1,11 +1,9 @@
 package pl.aptewicz.ftthchecker.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
-public class Job {
+public class FtthJob {
 
 	@Id
 	@GeneratedValue
@@ -15,7 +13,9 @@ public class Job {
 
 	private JobStatus jobStatus;
 
-	private Ftth
+	@ManyToOne
+	@JoinColumn(name = "ftthCheckerUser_id")
+	private FtthCheckerUser ftthCheckerUser;
 
 	public Long getId() {
 		return id;
@@ -39,5 +39,13 @@ public class Job {
 
 	public void setJobStatus(JobStatus jobStatus) {
 		this.jobStatus = jobStatus;
+	}
+
+	public FtthCheckerUser getFtthCheckerUser() {
+		return ftthCheckerUser;
+	}
+
+	public void setFtthCheckerUser(FtthCheckerUser ftthCheckerUser) {
+		this.ftthCheckerUser = ftthCheckerUser;
 	}
 }

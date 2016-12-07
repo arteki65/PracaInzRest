@@ -10,11 +10,11 @@ public class Edge {
 	@Id
 	private Long name;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne
 	@JoinColumn(name = "nodeAName")
 	private Node nodeA;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne
 	@JoinColumn(name = "nodeBName")
 	private Node nodeB;
 
