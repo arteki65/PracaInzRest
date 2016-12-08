@@ -6,6 +6,6 @@ public class PasswordEncoder {
 
 	public static void main(String[] args) {
 		StandardPasswordEncoder standardPasswordEncoder = new StandardPasswordEncoder("Wkn756!@");
-		System.out.println(standardPasswordEncoder.encode("wknpim75"));
+		System.out.println(standardPasswordEncoder.encode("wknpim"));
 	}
 }

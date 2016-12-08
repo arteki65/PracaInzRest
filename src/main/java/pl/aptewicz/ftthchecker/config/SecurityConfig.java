@@ -18,7 +18,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().anyRequest().hasAuthority("ADMIN").and().httpBasic();
+		http.authorizeRequests().anyRequest().hasAuthority("ADMIN").and().formLogin().and().logout()
+				.logoutSuccessUrl("/");
 	}
 
 	@Override
