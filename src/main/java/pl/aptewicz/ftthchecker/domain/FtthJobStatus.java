@@ -1,5 +1,5 @@
 package pl.aptewicz.ftthchecker.domain;
 
 public enum FtthJobStatus {
-	NEW, IN_PROGRESS, DONE;
+	NEW, IN_PROGRESS, DONE
 }

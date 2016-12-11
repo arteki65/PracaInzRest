@@ -28,8 +28,9 @@ public class FtthJob {
 	}
 
 	public FtthJob(FtthJobDto ftthJobDto) {
+		id = ftthJobDto.getId();
 		description = ftthJobDto.getDescription();
-		jobStatus = FtthJobStatus.NEW;
+		jobStatus = ftthJobDto.getJobStatus();
 		latitude = ftthJobDto.getLatitude();
 		longitude = ftthJobDto.getLongitude();
 	}

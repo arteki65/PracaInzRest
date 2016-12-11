@@ -25,6 +25,6 @@ public class NodeController {
 	public ResponseEntity<Node> getNodeById(@PathVariable String nodeId) {
 		Node node = nodeRepository.findOne(new Long(nodeId));
 		HttpStatus status = node != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
-		return new ResponseEntity<Node>(node, status);
+		return new ResponseEntity<>(node, status);
 	}
 }

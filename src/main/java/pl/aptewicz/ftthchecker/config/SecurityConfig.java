@@ -18,10 +18,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		/*http.authorizeRequests().anyRequest().hasAuthority("ADMIN").and().formLogin().and().logout()
-				.logoutSuccessUrl("/");*/
 		http.httpBasic().and().csrf().disable().authorizeRequests().antMatchers("/edge/*").hasAuthority("SERVICEMAN")
-				.antMatchers("/user").hasAuthority("SERVICEMAN").anyRequest().hasAuthority("ADMIN");
+				.antMatchers("/user").hasAuthority("SERVICEMAN").antMatchers("/route").hasAuthority("SERVICEMAN")
+				.antMatchers("/ftthJob").hasAuthority("SERVICEMAN").anyRequest().hasAuthority("ADMIN");
 	}
 
 	@Override
