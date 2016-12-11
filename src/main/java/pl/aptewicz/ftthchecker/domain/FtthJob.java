@@ -1,5 +1,7 @@
 package pl.aptewicz.ftthchecker.domain;
 
+import pl.aptewicz.ftthchecker.dto.FtthJobDto;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,11 +13,26 @@ public class FtthJob {
 
 	private String description;
 
-	private JobStatus jobStatus;
+	private double latitude;
+
+	private double longitude;
+
+	private FtthJobStatus jobStatus;
 
 	@ManyToOne
 	@JoinColumn(name = "ftthCheckerUser_id")
 	private FtthCheckerUser ftthCheckerUser;
+
+	public FtthJob()	{
+		//for jpa
+	}
+
+	public FtthJob(FtthJobDto ftthJobDto) {
+		description = ftthJobDto.getDescription();
+		jobStatus = FtthJobStatus.NEW;
+		latitude = ftthJobDto.getLatitude();
+		longitude = ftthJobDto.getLongitude();
+	}
 
 	public Long getId() {
 		return id;
@@ -33,11 +50,11 @@ public class FtthJob {
 		this.description = description;
 	}
 
-	public JobStatus getJobStatus() {
+	public FtthJobStatus getJobStatus() {
 		return jobStatus;
 	}
 
-	public void setJobStatus(JobStatus jobStatus) {
+	public void setJobStatus(FtthJobStatus jobStatus) {
 		this.jobStatus = jobStatus;
 	}
 
@@ -47,5 +64,21 @@ public class FtthJob {
 
 	public void setFtthCheckerUser(FtthCheckerUser ftthCheckerUser) {
 		this.ftthCheckerUser = ftthCheckerUser;
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
 	}
 }

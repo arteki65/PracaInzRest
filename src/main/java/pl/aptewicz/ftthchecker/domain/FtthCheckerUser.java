@@ -1,9 +1,6 @@
 package pl.aptewicz.ftthchecker.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
@@ -19,7 +16,7 @@ public class FtthCheckerUser {
 
 	private FtthCheckerUserRole ftthUserRole;
 
-	@OneToMany(mappedBy = "ftthCheckerUser")
+	@OneToMany(mappedBy = "ftthCheckerUser", fetch = FetchType.EAGER)
 	private Collection<FtthJob> jobs;
 
 	public Long getId() {
