@@ -14,7 +14,7 @@ public class RouteController {
 
 	private static final String GOOGLE_API_KEY = "AIzaSyB-QKyOwRzSMznccH_jPwYwgxSjF2CrhZ8";
 
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<String> findRoute(@RequestParam(name = "origin") String origin,
 			@RequestParam(name = "destination") String destination) {
 		String url =
