@@ -1,10 +1,13 @@
 package pl.aptewicz.ftthchecker.domain;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
 @Entity
 @NamedQueries({@NamedQuery(name = "Edge.findEdgesInArea", query = "SELECT e FROM Edge e WHERE "
 		+ "e.nodeA.x >= :x1 AND e.nodeA.y >= :y1 AND e.nodeB.x <= :x2 AND e.nodeB.y <= :y2")})
+@Data
 public class Edge {
 
 	@Id
@@ -18,38 +21,9 @@ public class Edge {
 	@JoinColumn(name = "nodeBName")
 	private Node nodeB;
 
+	@ManyToOne
+	@JoinColumn(name = "ffthJob_id")
+	private FtthJob ftthJob;
+
 	private Double length;
-
-	public Long getName() {
-		return name;
-	}
-
-	public void setName(Long name) {
-		this.name = name;
-	}
-
-	public Node getNodeA() {
-		return nodeA;
-	}
-
-	public void setNodeA(Node nodeA) {
-		this.nodeA = nodeA;
-	}
-
-	public Node getNodeB() {
-		return nodeB;
-	}
-
-	public void setNodeB(Node nodeB) {
-		this.nodeB = nodeB;
-	}
-
-	public Double getLength() {
-		return length;
-	}
-
-	public void setLength(Double length) {
-		this.length = length;
-	}
-
 }
