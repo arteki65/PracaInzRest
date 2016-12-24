@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.aptewicz.ftthchecker.domain.FtthCustomer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Data
@@ -17,7 +19,12 @@ public class FtthCustomerDto {
 
 	private String username;
 
-	private String password;
-
 	private Collection<FtthIssueDto> ftthDtoIssues;
+
+	public FtthCustomerDto(FtthCustomer ftthCustomer) {
+		id = ftthCustomer.getId();
+		username = ftthCustomer.getUsername();
+		ftthDtoIssues = new ArrayList<>();
+		ftthCustomer.getFtthIssues().forEach(ftthIssue -> ftthDtoIssues.add(new FtthIssueDto(ftthIssue)));
+	}
 }

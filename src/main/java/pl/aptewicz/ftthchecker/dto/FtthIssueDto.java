@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.aptewicz.ftthchecker.domain.FtthIssue;
 
 @Data
 @Builder
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FtthIssueDto {
 
-	Long id;
+	private Long id;
 
 	private String description;
 
@@ -19,5 +20,13 @@ public class FtthIssueDto {
 
 	private double latitude;
 
-	private FtthJobDto ftthJobDto;
+	private FtthJobDto ftthJob;
+
+	public FtthIssueDto(FtthIssue ftthIssue) {
+		id = ftthIssue.getId();
+		description = ftthIssue.getDescription();
+		latitude = ftthIssue.getLatitude();
+		longitude = ftthIssue.getLongitude();
+		ftthJob = new FtthJobDto(ftthIssue.getFtthJob());
+	}
 }

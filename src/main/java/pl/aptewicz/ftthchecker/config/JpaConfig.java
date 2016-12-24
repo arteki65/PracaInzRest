@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 @EnableJpaRepositories(basePackageClasses = {RepositoryConfigurationPoint.class})
 public class JpaConfig {
 
-	private static final String DATA_SOURCE_JNDI_NAME = "pracainz_test_mapping";
+	private static final String DATA_SOURCE_JNDI_NAME = "pracainz_hibernate_test";
 
 	private static final String DATABASE_PLATFORM = "org.hibernate.dialect.MySQLDialect";
 
