@@ -28,4 +28,12 @@ public class HomeController {
 				.collect(Collectors.toList()));
 		return "index";
 	}
+
+	@RequestMapping(path = "/maps")
+	public String map(Model model)	{
+		model.addAttribute("ftthCheckerUsers", ftthCheckerUserRepository.findAll().stream()
+				.filter(ftthCheckerUser -> FtthCheckerUserRole.SERVICEMAN.equals(ftthCheckerUser.getFtthUserRole()))
+				.collect(Collectors.toList()));
+		return "map";
+	}
 }
