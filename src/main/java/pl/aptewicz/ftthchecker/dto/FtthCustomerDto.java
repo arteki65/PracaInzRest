@@ -19,12 +19,12 @@ public class FtthCustomerDto {
 
 	private String username;
 
-	private Collection<FtthIssueDto> ftthDtoIssues;
+	private Collection<FtthIssueDto> ftthIssues;
 
 	public FtthCustomerDto(FtthCustomer ftthCustomer) {
 		id = ftthCustomer.getId();
 		username = ftthCustomer.getUsername();
-		ftthDtoIssues = new ArrayList<>();
-		ftthCustomer.getFtthIssues().forEach(ftthIssue -> ftthDtoIssues.add(new FtthIssueDto(ftthIssue)));
+		ftthIssues = new ArrayList<>();
+		ftthCustomer.getFtthIssues().forEach(ftthIssue -> ftthIssues.add(new FtthIssueDto(ftthIssue)));
 	}
 }
