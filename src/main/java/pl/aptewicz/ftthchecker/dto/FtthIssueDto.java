@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.aptewicz.ftthchecker.domain.FtthIssue;
 
+import java.util.Optional;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -27,6 +29,6 @@ public class FtthIssueDto {
 		description = ftthIssue.getDescription();
 		latitude = ftthIssue.getLatitude();
 		longitude = ftthIssue.getLongitude();
-		ftthJob = new FtthJobDto(ftthIssue.getFtthJob());
+		Optional.ofNullable(ftthIssue.getFtthJob()).ifPresent(ftthJobLambda -> ftthJob = new FtthJobDto(ftthJobLambda));
 	}
 }

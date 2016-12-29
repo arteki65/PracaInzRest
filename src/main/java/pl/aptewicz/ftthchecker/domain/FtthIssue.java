@@ -1,11 +1,14 @@
 package pl.aptewicz.ftthchecker.domain;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import pl.aptewicz.ftthchecker.dto.FtthIssueDto;
 
 import javax.persistence.*;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class FtthIssue {
 
 	@Id
@@ -24,4 +27,11 @@ public class FtthIssue {
 
 	@OneToOne
 	private FtthJob ftthJob;
+
+	public FtthIssue(FtthIssueDto ftthIssueDto) {
+		id = ftthIssueDto.getId();
+		description = ftthIssueDto.getDescription();
+		longitude = ftthIssueDto.getLongitude();
+		latitude = ftthIssueDto.getLatitude();
+	}
 }

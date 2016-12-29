@@ -21,9 +21,5 @@ public class Edge {
 	@JoinColumn(name = "nodeBName")
 	private Node nodeB;
 
-	@ManyToOne
-	@JoinColumn(name = "ffthJob_id")
-	private FtthJob ftthJob;
-
 	private Double length;
 }
