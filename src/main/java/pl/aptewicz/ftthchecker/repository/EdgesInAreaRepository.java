@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface EdgesInAreaRepository {
 
-	public List<Edge> findEdgesInAreaWithDemand(double x1, double y1, double x2, double y2);
+	List<Edge> findEdgesInAreaWithDemand(double x1, double y1, double x2, double y2);
 }
