@@ -1,12 +1,8 @@
 package pl.aptewicz.ftthchecker.service;
 
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pl.aptewicz.ftthchecker.googleapi.DistanceMatrixApiResponse;
-
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 
 @Service
 public class RouteServiceImpl implements RouteService {
@@ -26,10 +22,10 @@ public class RouteServiceImpl implements RouteService {
 	public int findDurationInSeconds(String origin, String destination) {
 		String url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&language=pl&key="
 				+ GOOGLE_API_KEY + "&origins=" + origin + "&destinations=" + destination;
-		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		/*SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.schenker.pl", 80));
-		requestFactory.setProxy(proxy);
-		RestTemplate restTemplate = new RestTemplate(requestFactory);
+		requestFactory.setProxy(proxy);*/
+		RestTemplate restTemplate = new RestTemplate();
 		DistanceMatrixApiResponse distanceMatrixApiResponse = restTemplate
 				.getForObject(url, DistanceMatrixApiResponse.class);
 		return distanceMatrixApiResponse.getRows().get(0).getElements().get(0).getDuration().getValue();
