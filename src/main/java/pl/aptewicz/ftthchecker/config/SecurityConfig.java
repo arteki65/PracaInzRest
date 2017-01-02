@@ -25,7 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.csrf().disable().authorizeRequests().antMatchers("/edge/*").hasAuthority("SERVICEMAN")
 				.antMatchers("/user").hasAuthority("SERVICEMAN").antMatchers("/route").hasAuthority("SERVICEMAN")
 				.antMatchers("/ftthJob").hasAuthority("SERVICEMAN").antMatchers("/ftthCustomer")
-				.hasAuthority("CUSTOMER").antMatchers("/ftthIssue").hasAuthority("CUSTOMER").anyRequest()
+				.hasAuthority("CUSTOMER").antMatchers("/ftthIssue").hasAnyAuthority("CUSTOMER", "ADMIN").anyRequest()
 				.hasAuthority("ADMIN");
 	}
 

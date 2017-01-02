@@ -24,7 +24,7 @@ public class FtthJob {
 	@JoinColumn(name = "ftthCheckerUser_id")
 	private FtthCheckerUser ftthCheckerUser;
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	private Collection<Edge> affectedEdges;
 
 	@OneToOne
