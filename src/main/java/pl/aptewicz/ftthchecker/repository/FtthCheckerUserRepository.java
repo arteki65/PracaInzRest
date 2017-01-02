@@ -6,7 +6,7 @@ import pl.aptewicz.ftthchecker.domain.FtthCheckerUserRole;
 
 import java.util.Collection;
 
-public interface FtthCheckerUserRepository extends JpaRepository<FtthCheckerUser, Long> {
+public interface FtthCheckerUserRepository extends JpaRepository<FtthCheckerUser, Long>, FtthCheckerUserInAreaRepository {
 
 	FtthCheckerUser findByUsername(String username);
 

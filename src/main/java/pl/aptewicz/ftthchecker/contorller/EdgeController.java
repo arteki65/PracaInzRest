@@ -25,10 +25,9 @@ public class EdgeController {
 
 	@RequestMapping(value = "/findEdgesInArea", method = RequestMethod.GET)
 	public List<Edge> getEdgesInArea(@RequestParam("x1") String x1, @RequestParam("x2") String x2,
-			@RequestParam("y1") String y1, @RequestParam("y2") String y2, @RequestParam("zoom") String zoom) {
+			@RequestParam("y1") String y1, @RequestParam("y2") String y2) {
 
 		return edgeService
-				.findEdgesInArea(Double.valueOf(x1), Double.valueOf(y1), Double.valueOf(x2), Double.valueOf(y2),
-						Double.valueOf(zoom).longValue());
+				.findEdgesInArea(Double.valueOf(x1), Double.valueOf(y1), Double.valueOf(x2), Double.valueOf(y2));
 	}
 }

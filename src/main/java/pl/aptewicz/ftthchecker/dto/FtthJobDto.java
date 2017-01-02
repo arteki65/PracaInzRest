@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import pl.aptewicz.ftthchecker.domain.FtthJob;
 import pl.aptewicz.ftthchecker.domain.FtthJobStatus;
 
+import java.util.Collection;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -19,17 +21,13 @@ public class FtthJobDto {
 
 	private FtthJobStatus jobStatus;
 
-	private double latitude;
-
-	private double longitude;
-
 	private String servicemanUsername;
+
+	private Collection<EdgeDto> affectedDtoEdges;
 
 	public FtthJobDto(FtthJob ftthJob) {
 		id = ftthJob.getId();
 		description = ftthJob.getDescription();
 		jobStatus = ftthJob.getJobStatus();
-		latitude = ftthJob.getLatitude();
-		longitude = ftthJob.getLongitude();
 	}
 }
