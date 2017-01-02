@@ -18,7 +18,7 @@ public class EdgeServiceImpl implements EdgeServiceInterface {
 	}
 
 	@Override
-	public List<Edge> findEdgesInArea(double x1, double y1, double x2, double y2, long zoom) {
+	public List<Edge> findEdgesInArea(double x1, double y1, double x2, double y2) {
 		return edgeRepository.findEdgesInAreaWithDemand(x1, y1, x2, y2);
 	}
 
