@@ -3,16 +3,20 @@ package pl.aptewicz.ftthchecker.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
-import pl.aptewicz.ftthchecker.async.FindAffectedEdgesAsyncTask;
 import pl.aptewicz.ftthchecker.async.FindFtthCheckerUserForJobAsyncTask;
+import pl.aptewicz.ftthchecker.domain.Edge;
 import pl.aptewicz.ftthchecker.domain.FtthIssue;
 import pl.aptewicz.ftthchecker.domain.FtthJob;
 import pl.aptewicz.ftthchecker.domain.FtthJobStatus;
 import pl.aptewicz.ftthchecker.dto.FtthIssueDto;
+import pl.aptewicz.ftthchecker.exception.FtthRestApiException;
+import pl.aptewicz.ftthchecker.exception.FtthRestApiExceptionConstants;
 import pl.aptewicz.ftthchecker.repository.FtthCheckerUserRepository;
 import pl.aptewicz.ftthchecker.repository.FtthCustomerRepository;
 import pl.aptewicz.ftthchecker.repository.FtthIssueRepository;
 import pl.aptewicz.ftthchecker.repository.FtthJobRepository;
+
+import java.util.Collection;
 
 @Service
 public class FtthIssueServiceImpl implements FtthIssueService {
@@ -47,26 +51,39 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 	public FtthIssueDto saveFtthIssue(FtthIssueDto ftthIssueDto, User user) {
 		FtthIssue ftthIssue = new FtthIssue(ftthIssueDto);
 		ftthIssue.setFtthCustomer(ftthCustomerRepository.findByUsername(user.getUsername()));
-		ftthIssueRepository.save(ftthIssue);
 
-		double y = ftthIssue.getLatitude();
-		double x = ftthIssue.getLongitude();
+		double issueY = ftthIssue.getLatitude();
+		double issueX = ftthIssue.getLongitude();
 
 		FtthJob ftthJob = new FtthJob();
 		ftthJob.setDescription(ftthIssue.getDescription());
 		ftthJob.setFtthIssue(ftthIssue);
 		ftthJob.setJobStatus(FtthJobStatus.NEW);
 
-		ftthIssue.setFtthJob(ftthJobRepository.save(ftthJob));
+		double delta = DELTA;
+		Collection<Edge> edgesInArea = edgeService
+				.findEdgesInArea(issueX - delta, issueY - delta, issueX + delta, issueY + delta);
+		int attempts = 0;
+		while (edgesInArea.isEmpty() && attempts < 10) {
+			attempts++;
+			edgesInArea = edgeService.findEdgesInArea(issueX - delta, issueY - delta, issueX + delta, issueY + delta);
+		}
 
-		FindAffectedEdgesAsyncTask findAffectedEdgesAsyncTask = new FindAffectedEdgesAsyncTask(edgeService, x, y, DELTA,
-				ftthJob, ftthJobRepository);
-		new Thread(findAffectedEdgesAsyncTask, "FindAffectedEdgesAsyncTask").start();
+		if(!edgesInArea.isEmpty()) {
+			ftthIssueRepository.save(ftthIssue);
+			ftthIssue.setFtthJob(ftthJobRepository.save(ftthJob));
 
-		FindFtthCheckerUserForJobAsyncTask findFtthCheckerUserForJobAsyncTask = new FindFtthCheckerUserForJobAsyncTask(
-				ftthCheckerUserRepository, DELTA, routeService, x, y, ftthJob, ftthJobRepository);
-		new Thread(findFtthCheckerUserForJobAsyncTask, "FindFtthCheckerUserForJobAsyncTask").start();
+		/*FindAffectedEdgesAsyncTask findAffectedEdgesAsyncTask = new FindAffectedEdgesAsyncTask(edgeService, issueX,
+				issueY, DELTA, ftthJob, ftthJobRepository);
+		new Thread(findAffectedEdgesAsyncTask, "FindAffectedEdgesAsyncTask").start();*/
 
-		return new FtthIssueDto(ftthIssue);
+			FindFtthCheckerUserForJobAsyncTask findFtthCheckerUserForJobAsyncTask = new FindFtthCheckerUserForJobAsyncTask(
+					ftthCheckerUserRepository, DELTA, routeService, issueX, issueY, ftthJob, ftthJobRepository);
+			new Thread(findFtthCheckerUserForJobAsyncTask, "FindFtthCheckerUserForJobAsyncTask").start();
+
+			return new FtthIssueDto(ftthIssue);
+		}
+
+		throw new FtthRestApiException(FtthRestApiExceptionConstants.NO_EDGES_NEAR_ISSUE_LOCATION_FOUND);
 	}
 }
