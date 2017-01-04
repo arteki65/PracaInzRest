@@ -25,10 +25,14 @@ public class FtthCheckerUserDto {
 
 	private Collection<FtthJobDto> ftthJobs;
 
+	private LatLngDto lastPosition;
+
 	public FtthCheckerUserDto(FtthCheckerUser ftthCheckerUser) {
 		id = ftthCheckerUser.getId();
 		username = ftthCheckerUser.getUsername();
 		ftthCheckerUserRole = ftthCheckerUser.getFtthUserRole();
+		Optional.ofNullable(ftthCheckerUser.getLastPosition()).ifPresent(latLng -> lastPosition = new LatLngDto
+				(latLng));
 		Optional.ofNullable(ftthCheckerUser.getJobs()).ifPresent(
 				ftthJobsLambda -> ftthJobs = ftthJobsLambda.stream().map(FtthJobDto::new).collect(Collectors.toList()));
 	}

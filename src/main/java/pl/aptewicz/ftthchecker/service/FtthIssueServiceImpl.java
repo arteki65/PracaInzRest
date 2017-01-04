@@ -21,7 +21,7 @@ import java.util.Collection;
 @Service
 public class FtthIssueServiceImpl implements FtthIssueService {
 
-	private static final double DELTA = 0.0003;
+	private static final double DELTA = 0.0009;
 
 	private final FtthCustomerRepository ftthCustomerRepository;
 
@@ -66,16 +66,15 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 		int attempts = 0;
 		while (edgesInArea.isEmpty() && attempts < 10) {
 			attempts++;
+			delta = delta + DELTA;
 			edgesInArea = edgeService.findEdgesInArea(issueX - delta, issueY - delta, issueX + delta, issueY + delta);
 		}
 
 		if(!edgesInArea.isEmpty()) {
 			ftthIssueRepository.save(ftthIssue);
+			ftthJob.setAffectedEdges(edgesInArea);
 			ftthIssue.setFtthJob(ftthJobRepository.save(ftthJob));
-
-		/*FindAffectedEdgesAsyncTask findAffectedEdgesAsyncTask = new FindAffectedEdgesAsyncTask(edgeService, issueX,
-				issueY, DELTA, ftthJob, ftthJobRepository);
-		new Thread(findAffectedEdgesAsyncTask, "FindAffectedEdgesAsyncTask").start();*/
+			ftthIssueRepository.save(ftthIssue);
 
 			FindFtthCheckerUserForJobAsyncTask findFtthCheckerUserForJobAsyncTask = new FindFtthCheckerUserForJobAsyncTask(
 					ftthCheckerUserRepository, DELTA, routeService, issueX, issueY, ftthJob, ftthJobRepository);

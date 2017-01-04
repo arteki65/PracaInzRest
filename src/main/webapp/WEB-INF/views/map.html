@@ -15,12 +15,21 @@
 </head>
 <body>
 <div th:class="container-fluid">
-    <h3>My Google Maps Demo</h3>
+    <h3 th:text="#{adminDashboard}">My Google Maps Demo</h3>
+    <div th:class="row">
+        <form th:method="POST" th:action="@{/logout}" th:class="'col-md-2 col-md-offset-10'">
+            <label>
+                <input th:value="#{logout}" th:type="submit"/>
+            </label>
+        </form>
+    </div>
     <div th:class="row">
         <div th:class="'list-group col-md-4'">
             <a th:each="ftthCheckerUser : ${ftthCheckerUsers}"
                th:text="${ftthCheckerUser.username}" th:class="'list-group-item serviceman'"
                th:style="'text-align: center; cursor: pointer'"></a>
+            <!--<a th:text="#{showAllServicemen}" th:class="'list-group-item'" th:id="showAllServicemen"
+               th:style="'text-align: center; cursor: pointer'"></a>-->
         </div>
         <div id="map" th:class="col-md-8"></div>
     </div>
