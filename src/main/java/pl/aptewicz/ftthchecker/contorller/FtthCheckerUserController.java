@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,16 @@ public class FtthCheckerUserController {
 	public ResponseEntity<FtthCheckerUserDto> getUserDetails(
 			@AuthenticationPrincipal org.springframework.security.core.userdetails.User user) {
 		FtthCheckerUser ftthCheckerUser = ftthCheckerUserRepository.findByUsername(user.getUsername());
+		if (ftthCheckerUser != null) {
+			return new ResponseEntity<>(new FtthCheckerUserDto(ftthCheckerUser), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "findUser/{username}")
+	public ResponseEntity<FtthCheckerUserDto> finUser(@PathVariable("username") String username) {
+		FtthCheckerUser ftthCheckerUser = ftthCheckerUserRepository.findByUsername(username);
 		if (ftthCheckerUser != null) {
 			return new ResponseEntity<>(new FtthCheckerUserDto(ftthCheckerUser), HttpStatus.OK);
 		} else {
