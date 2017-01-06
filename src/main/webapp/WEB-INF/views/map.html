@@ -28,8 +28,8 @@
             <a th:each="ftthCheckerUser : ${ftthCheckerUsers}"
                th:text="${ftthCheckerUser.username}" th:class="'list-group-item serviceman'"
                th:style="'text-align: center; cursor: pointer'"></a>
-            <!--<a th:text="#{showAllServicemen}" th:class="'list-group-item'" th:id="showAllServicemen"
-               th:style="'text-align: center; cursor: pointer'"></a>-->
+            <a th:text="#{showAllServicemen}" th:class="'list-group-item'" th:id="showAllServicemen"
+               th:style="'text-align: center; cursor: pointer'"></a>
         </div>
         <div id="map" th:class="col-md-8"></div>
     </div>

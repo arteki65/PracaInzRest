@@ -25,7 +25,7 @@ public class FtthJob {
 	private FtthCheckerUser ftthCheckerUser;
 
 	@ManyToMany(fetch = FetchType.EAGER)
-	private Collection<Edge> affectedEdges;
+	private Collection<AccessPoint> affectedAccessPoints;
 
 	@OneToOne
 	private FtthIssue ftthIssue;

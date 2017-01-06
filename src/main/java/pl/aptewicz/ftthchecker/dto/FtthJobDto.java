@@ -25,7 +25,7 @@ public class FtthJobDto {
 
 	private String servicemanUsername;
 
-	private Collection<EdgeDto> affectedEdges;
+	private Collection<AccessPointDto> affectedAccessPoints;
 
 	public FtthJobDto(FtthJob ftthJob) {
 		id = ftthJob.getId();
@@ -33,8 +33,8 @@ public class FtthJobDto {
 		jobStatus = ftthJob.getJobStatus();
 		Optional.ofNullable(ftthJob.getFtthCheckerUser())
 				.ifPresent(ftthCheckerUser -> servicemanUsername = ftthCheckerUser.getUsername());
-		affectedEdges = new ArrayList<>();
-		Optional.ofNullable(ftthJob.getAffectedEdges())
-				.ifPresent(edges -> edges.forEach(edge -> affectedEdges.add(new EdgeDto(edge))));
+		affectedAccessPoints = new ArrayList<>();
+		Optional.ofNullable(ftthJob.getAffectedAccessPoints()).ifPresent(accessPoints -> accessPoints
+				.forEach(accessPoint -> affectedAccessPoints.add(new AccessPointDto(accessPoint))));
 	}
 }

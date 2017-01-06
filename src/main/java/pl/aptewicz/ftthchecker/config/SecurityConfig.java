@@ -21,9 +21,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.formLogin().defaultSuccessUrl("/maps", true).and().authorizeRequests().antMatchers("/maps").hasAuthority
-				("ADMIN")
-				.and().httpBasic().and().csrf().disable().authorizeRequests().antMatchers("/edge/*")
+		http.formLogin().defaultSuccessUrl("/maps", true).and().authorizeRequests().antMatchers("/maps")
+				.hasAuthority("ADMIN").and().httpBasic().and().csrf().disable().authorizeRequests().antMatchers("/edge/*")
 				.hasAuthority("SERVICEMAN").antMatchers("/user").hasAuthority("SERVICEMAN").antMatchers("/route")
 				.hasAuthority("SERVICEMAN").antMatchers("/ftthJob").hasAuthority("SERVICEMAN")
 				.antMatchers("/ftthCustomer").hasAuthority("CUSTOMER").antMatchers("/ftthIssue")

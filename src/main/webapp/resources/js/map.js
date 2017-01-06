@@ -1,6 +1,7 @@
 var markers = [];
 var circle;
 var polylines = [];
+var infoWindows = [];
 
 $(document).ready(function () {
     var bounds = new google.maps.LatLngBounds();
@@ -10,6 +11,11 @@ $(document).ready(function () {
             markers[counter].setMap(null);
         }
         markers = [];
+
+        for(var counter3 = 0; counter3 < infoWindows.length; counter3++) {
+            infoWindows[counter3].close();
+        }
+        infoWindows = [];
 
         if (circle != null) {
             circle.setMap(null);
@@ -21,81 +27,77 @@ $(document).ready(function () {
         bounds = new google.maps.LatLngBounds();
     }
 
-    $(".serviceman").click(function () {
+    function goToIssue(issue) {
         clearMap();
 
-        $(".list-group").find(".serviceman").removeClass("active");
-        $(this).addClass("active");
-        $.ajax({
-            method: "GET",
-            url: "/PracaInzRest/ftthIssue/" + $(this).text()
-        })
-            .done(function (msg) {
-                var issueLocation;
-                for (var i = 0; i < msg.length; i++) {
-                    issueLocation = {lat: msg[i].latitude, lng: msg[i].longitude};
-                    var issueLocationMarker = new google.maps.Marker({
-                        position: issueLocation,
-                        map: map,
-                        icon: '/PracaInzRest/resources/img/ic_error_black_24dp.png',
-                        zIndex: 9999999
-                    });
-                    markers.push(issueLocationMarker);
-                    bounds.extend(issueLocation);
+        var issueLocation = {lat: issue.latitude, lng: issue.longitude};
+        bounds.extend(issueLocation);
 
-                    circle = new google.maps.Circle({
-                        strokeColor: '#FF0000',
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: '#FF0000',
-                        fillOpacity: 0.35,
-                        map: map,
-                        center: issueLocation,
-                        radius: 100
-                    });
+        var issueLocationMarker = new google.maps.Marker({
+            position: issueLocation,
+            map: map,
+            icon: '/PracaInzRest/resources/img/ic_error_black_24dp.png',
+            zIndex: 9999999
+        });
+        markers.push(issueLocationMarker);
 
-                    for (var j = 0; j < msg[i].ftthJob.affectedEdges.length; j++) {
-                        var affectedEdgeNodeA = msg[i].ftthJob.affectedEdges[j].nodeA;
-                        var affectedEdgeNodeB = msg[i].ftthJob.affectedEdges[j].nodeB;
-                        var nodeA = {lat: affectedEdgeNodeA.y, lng: affectedEdgeNodeA.x};
-                        var nodeB = {lat: affectedEdgeNodeB.y, lng: affectedEdgeNodeB.x};
+        var issueLocationInfoWindow = new google.maps.InfoWindow({
+            content: '<h4>Szczegóły zgłoszenia:</h4>' +
+            '<p>Długość geograficzna: ' + issue.longitude + '</p>' +
+            '<p>Szerokość geograficzna: ' + issue.latitude + '</p>' +
+            '<p>Opis: ' + issue.description + '</p>'
+        });
+        infoWindows.push(issueLocationInfoWindow);
 
-                        var markerNodeA = new google.maps.Marker({
-                            position: nodeA,
-                            map: map,
-                            icon: '/PracaInzRest/resources/img/blueMarker.png',
-                            zIndex: 9999999
-                        });
-                        var markerNodeB = new google.maps.Marker({
-                            position: nodeB,
-                            map: map,
-                            icon: '/PracaInzRest/resources/img/blueMarker.png',
-                            zIndex: 9999999
-                        });
-                        markers.push(markerNodeA);
-                        markers.push(markerNodeB);
+        issueLocationMarker.addListener('click', function () {
+            issueLocationInfoWindow.open(map, issueLocationMarker);
+        });
 
-                        var edgeCoordinates = [{lat: affectedEdgeNodeA.y, lng: affectedEdgeNodeA.x},
-                            {lat: affectedEdgeNodeB.y, lng: affectedEdgeNodeB.x}];
-                        var edge = new google.maps.Polyline({
-                            path: edgeCoordinates,
-                            geodesic: true,
-                            strokeColor: '#0000FF',
-                            strokeOpacity: 1.0,
-                            strokeWeight: 2,
-                            zIndex: 9999999
-                        });
-                        polylines.push(edge);
+        circle = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: issueLocation,
+            radius: 30
+        });
 
-                        edge.setMap(map);
-                    }
-                }
-                fitMap();
+        var accessPointsMarkers = [];
+        var accessPointInfoWindows = [];
+        for (var j = 0; j < issue.ftthJob.affectedAccessPoints.length; j++) {
+            var affectedAccessPoint = issue.ftthJob.affectedAccessPoints[j].node;
+            var nodeA = {lat: affectedAccessPoint.y, lng: affectedAccessPoint.x};
+            bounds.extend(nodeA);
+
+            var markerAccessPoint = new google.maps.Marker({
+                position: nodeA,
+                map: map,
+                icon: '/PracaInzRest/resources/img/blueMarker.png',
+                zIndex: 9999999
+            });
+            accessPointsMarkers[j] = markerAccessPoint;
+            accessPointsMarkers[j].index = j;
+
+            var accessPointInfoWindow = new google.maps.InfoWindow({
+                content: '<h4>Punkt dostępowy:</h4>' +
+                '<p>Długość geograficzna: ' + affectedAccessPoint.x + '</p>' +
+                '<p>Szerokość geograficzna: ' + affectedAccessPoint.y + '</p>'
+            });
+            accessPointInfoWindows.push(accessPointInfoWindow);
+            infoWindows.push(accessPointInfoWindow);
+
+            google.maps.event.addListener(accessPointsMarkers[j], 'click', function() {
+                accessPointInfoWindows[this.index].open(map, accessPointsMarkers[this.index]);
             });
 
+            markers.push(markerAccessPoint);
+        }
+
         $.ajax({
             method: "GET",
-            url: "/PracaInzRest/user/findUser/" + $(this).text()
+            url: "/PracaInzRest/user/findUser/" + issue.ftthJob.servicemanUsername
         })
             .done(function (msg) {
                 var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
@@ -107,15 +109,8 @@ $(document).ready(function () {
                 });
                 markers.push(servicemanLastPositionMarker);
                 bounds.extend(servicemanLastPosition);
-                fitMap();
-            });
-
-        var functionsDone = 0;
-
-        function fitMap() {
-            functionsDone++;
-            if (functionsDone == 2) {
                 map.fitBounds(bounds);
+
                 $.ajax({
                     method: "GET",
                     url: "/PracaInzRest/edge/findEdgesInArea?x1=" + map.getBounds().getSouthWest().lng() + "&y1=" +
@@ -153,11 +148,94 @@ $(document).ready(function () {
                             edge.setMap(map);
                         }
                     });
-            }
-        }
+            });
+    }
+
+    $(".serviceman").click(function () {
+        clearMap();
+
+        $(".list-group").find(".serviceman").removeClass("active");
+        $(this).addClass("active");
+        $.ajax({
+            method: "GET",
+            url: "/PracaInzRest/ftthIssue/" + $(this).text()
+        })
+            .done(function (msg) {
+                var issueLocation;
+                var issueLocationMarkers = [];
+                var issueLocationInfoWindows = [];
+                for (var i = 0; i < msg.length; i++) {
+                    issueLocation = {lat: msg[i].latitude, lng: msg[i].longitude};
+
+                    issueLocationInfoWindows[i] = new google.maps.InfoWindow({
+                        content: '<h4>Szczegóły zgłoszenia:</h4>' +
+                        '<p>Długość geograficzna: ' + msg[i].longitude + '</p>' +
+                        '<p>Szerokość geograficzna: ' + msg[i].latitude + '</p>' +
+                        '<p>Opis: ' + msg[i].description + '</p>'
+                    });
+
+                    var issueLocationMarker = new google.maps.Marker({
+                        position: issueLocation,
+                        map: map,
+                        icon: '/PracaInzRest/resources/img/ic_error_black_24dp.png',
+                        zIndex: 9999999
+                    });
+                    issueLocationMarkers[i] = issueLocationMarker;
+                    issueLocationMarkers[i].index = i;
+                    issueLocationMarkers[i].issue = msg[i];
+
+                    google.maps.event.addListener(issueLocationMarkers[i], 'click', function() {
+                        //issueLocationInfoWindows[this.index].open(map, issueLocationMarkers[this.index]);
+                        goToIssue(this.issue);
+                    });
+
+                    markers.push(issueLocationMarker);
+                    bounds.extend(issueLocation);
+
+                }
+                map.fitBounds(bounds);
+            });
+
+        $.ajax({
+            method: "GET",
+            url: "/PracaInzRest/user/findUser/" + $(this).text()
+        })
+            .done(function (msg) {
+                var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
+                var servicemanLastPositionMarker = new google.maps.Marker({
+                    position: servicemanLastPosition,
+                    map: map,
+                    icon: '/PracaInzRest/resources/img/ic_build_black_24dp.png',
+                    zIndex: 9999999
+                });
+                markers.push(servicemanLastPositionMarker);
+                bounds.extend(servicemanLastPosition);
+            });
     });
 
     $("#showAllServicemen").click(function () {
         clearMap();
+
+        $.ajax({
+            method: "GET",
+            url: "/PracaInzRest/accessPoint//findAccessPointsInArea?x1=" + map.getBounds().getSouthWest().lng() + "&y1=" +
+            map.getBounds().getSouthWest().lat() + "&x2=" + map.getBounds().getNorthEast().lng() + "&y2=" +
+            map.getBounds().getNorthEast().lat()
+        })
+            .done(function (msg) {
+                for (var i = 0; i < msg.length; i++) {
+                    var node = {lat: msg[i].node.y, lng: msg[i].node.x};
+
+                    var markerNode = new google.maps.Marker({
+                        position: node,
+                        map: map,
+                        icon: '/PracaInzRest/resources/img/redMarker.png'
+                    });
+                    markers.push(markerNode);
+                    bounds.extend(node);
+                }
+
+                map.fitBounds(bounds);
+            });
     });
 });
