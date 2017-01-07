@@ -37,44 +37,52 @@ public class PathServiceImpl implements PathService {
 	public Collection<EdgeDto> findPathForIssue(Long issueId) {
 		FtthIssue ftthIssue = ftthIssueRepository.findOne(issueId);
 
-		Optional<AccessPoint> accessPointOptional = ftthIssue.getFtthJob().getAffectedAccessPoints().stream().findFirst();
-		if(accessPointOptional.isPresent()) {
+		Optional<AccessPoint> accessPointOptional = ftthIssue.getFtthJob().getAffectedAccessPoints().stream()
+				.findFirst();
+		if (accessPointOptional.isPresent()) {
 			Collection<EdgeDto> path = new ArrayList<>();
 
 			AccessPoint accessPoint = accessPointOptional.get();
 			String siteName = accessPoint.getNode().getName() + "_" + accessPoint.getDescription();
 			Site site = siteRepository.findByName(siteName);
 
-			Hierarchy hierarchy = hierarchyRepository.findByAccessSiteLike(accessPoint.getNode().getName().toString()
-					+ "%");
+			String accessSiteLike;
+			if(accessPoint.getDescription().contains("/")) {
+				accessSiteLike = accessPoint.getNode().getName().toString() + "_" + accessPoint.getDescription()
+						.substring(0, accessPoint.getDescription().indexOf("/")) + "%";
+			} else {
+				accessSiteLike = accessPoint.getNode().getName().toString() + "_" + accessPoint.getDescription()
+						.substring(0, accessPoint.getDescription().indexOf("_")) + "%";
+			}
+			Hierarchy hierarchy = hierarchyRepository.findByAccessSiteLike(accessSiteLike);
 
 			Edge firstEdgeFromSite = site.getFirstEdge();
 			path.add(new EdgeDto(firstEdgeFromSite));
 
 			PathEdge pathEdge = pathRepository.findByEdgeAndSinkSiteLike(firstEdgeFromSite, siteName);
-			while(!pathEdge.getEdge().equals(pathEdge.getPreviousEdge())) {
+			while (!pathEdge.getEdge().equals(pathEdge.getPreviousEdge())) {
 				Edge previousEdge = pathEdge.getPreviousEdge();
 				path.add(new EdgeDto(previousEdge));
 
 				pathEdge = pathRepository.findByEdgeAndSinkSiteLike(previousEdge, siteName);
 			}
 
-			if(hierarchy.getDistributionSite().contains(pathEdge.getEdge().getNodeB().getName().toString())
+			if (hierarchy.getDistributionSite().contains(pathEdge.getEdge().getNodeB().getName().toString())
 					|| hierarchy.getDistributionSite().contains(pathEdge.getEdge().getNodeA().getName().toString())) {
 				Site distributionSite = siteRepository.findByNameLike(hierarchy.getDistributionSite() + "%");
 
 				Edge distributionSiteFirstEdge = distributionSite.getFirstEdge();
 				path.add(new EdgeDto(distributionSiteFirstEdge));
 
-				PathEdge pathEdgeForDistributionSite = pathRepository.findByEdgeAndSinkSiteLike
-						(distributionSiteFirstEdge, distributionSite.getName());
+				PathEdge pathEdgeForDistributionSite = pathRepository
+						.findByEdgeAndSinkSiteLike(distributionSiteFirstEdge, distributionSite.getName());
 
-				while(!pathEdgeForDistributionSite.getEdge().equals(pathEdgeForDistributionSite.getPreviousEdge())) {
+				while (!pathEdgeForDistributionSite.getEdge().equals(pathEdgeForDistributionSite.getPreviousEdge())) {
 					Edge distributionSitePreviousEdge = pathEdgeForDistributionSite.getPreviousEdge();
 					path.add(new EdgeDto(distributionSitePreviousEdge));
 
-					pathEdgeForDistributionSite = pathRepository.findByEdgeAndSinkSiteLike
-							(distributionSitePreviousEdge, distributionSite.getName());
+					pathEdgeForDistributionSite = pathRepository
+							.findByEdgeAndSinkSiteLike(distributionSitePreviousEdge, distributionSite.getName());
 				}
 			}
 

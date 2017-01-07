@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:th="http://www.thymeleaf.org"
+      xmlns:th="http://www.thymeleaf.org"
 >
 <head>
     <meta charset="UTF-8"/>
@@ -24,21 +24,36 @@
         </form>
     </div>
     <div th:class="row">
-        <div th:class="'list-group col-md-4'">
-            <a th:each="ftthCheckerUser : ${ftthCheckerUsers}"
-               th:text="${ftthCheckerUser.username}" th:class="'list-group-item serviceman'"
-               th:style="'text-align: center; cursor: pointer'"></a>
-            <a th:text="#{showAllServicemen}" th:class="'list-group-item'" th:id="showAllServicemen"
-               th:style="'text-align: center; cursor: pointer'"></a>
+        <div th:class="'col-md-4'">
+            <div th:class="row">
+                <div th:class="'col-md-12 list-group'">
+                    <a th:each="ftthCheckerUser : ${ftthCheckerUsers}"
+                       th:text="${ftthCheckerUser.username}" th:class="'list-group-item serviceman'"
+                       th:style="'text-align: center; cursor: pointer'"></a>
+                    <a th:text="#{showAllServicemen}" th:class="'list-group-item'" th:id="showAllServicemen"
+                       th:style="'text-align: center; cursor: pointer'"></a>
+                </div>
+            </div>
         </div>
-        <div id="map" th:class="col-md-8"></div>
+        <div th:class="col-md-8">
+            <div th:class="row">
+                <div th:id="map" th:class="col-md-12">
+                </div>
+                <div th:class="col-md-12">
+                    <div th:class="checkbox">
+                        <label><input th:type="checkbox" th:id="showNetwork" th:text="#{showNetwork}"
+                                      th:value="showNetwork"/></label>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script>
     var map;
     function initMap() {
         var center = {lat: 52.231876, lng: 21.006473};
-         map = new google.maps.Map(document.getElementById('map'), {
+        map = new google.maps.Map(document.getElementById('map'), {
             zoom: 10,
             center: center
         });

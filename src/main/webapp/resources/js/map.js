@@ -2,6 +2,9 @@ var markers = [];
 var circle;
 var polylines = [];
 var infoWindows = [];
+var networkMarkes = [];
+var networkEdges = [];
+var distributionSiteLocation;
 
 $(document).ready(function () {
     var bounds = new google.maps.LatLngBounds();
@@ -12,7 +15,7 @@ $(document).ready(function () {
         }
         markers = [];
 
-        for(var counter3 = 0; counter3 < infoWindows.length; counter3++) {
+        for (var counter3 = 0; counter3 < infoWindows.length; counter3++) {
             infoWindows[counter3].close();
         }
         infoWindows = [];
@@ -24,7 +27,9 @@ $(document).ready(function () {
         for (var counter2 = 0; counter2 < polylines.length; counter2++) {
             polylines[counter2].setMap(null);
         }
+        polylines = [];
         bounds = new google.maps.LatLngBounds();
+        distributionSiteLocation = null;
     }
 
     function goToIssue(issue) {
@@ -43,6 +48,7 @@ $(document).ready(function () {
 
         var issueLocationInfoWindow = new google.maps.InfoWindow({
             content: '<h4>Szczegóły zgłoszenia:</h4>' +
+            '<p>Identyfikator: ' + issue.id + '</p>' +
             '<p>Długość geograficzna: ' + issue.longitude + '</p>' +
             '<p>Szerokość geograficzna: ' + issue.latitude + '</p>' +
             '<p>Opis: ' + issue.description + '</p>'
@@ -67,8 +73,8 @@ $(document).ready(function () {
         var accessPointsMarkers = [];
         var accessPointInfoWindows = [];
         for (var j = 0; j < issue.ftthJob.affectedAccessPoints.length; j++) {
-            var affectedAccessPoint = issue.ftthJob.affectedAccessPoints[j].node;
-            var nodeA = {lat: affectedAccessPoint.y, lng: affectedAccessPoint.x};
+            var affectedAccessPointNode = issue.ftthJob.affectedAccessPoints[j].node;
+            var nodeA = {lat: affectedAccessPointNode.y, lng: affectedAccessPointNode.x};
             bounds.extend(nodeA);
 
             var markerAccessPoint = new google.maps.Marker({
@@ -82,13 +88,15 @@ $(document).ready(function () {
 
             var accessPointInfoWindow = new google.maps.InfoWindow({
                 content: '<h4>Punkt dostępowy:</h4>' +
-                '<p>Długość geograficzna: ' + affectedAccessPoint.x + '</p>' +
-                '<p>Szerokość geograficzna: ' + affectedAccessPoint.y + '</p>'
+                '<p>Długość geograficzna: ' + affectedAccessPointNode.x + '</p>' +
+                '<p>Szerokość geograficzna: ' + affectedAccessPointNode.y + '</p>' +
+                '<p>Szczegóły techniczne: ' + issue.ftthJob.affectedAccessPoints[j].description + '</p>' +
+                '<p>Typ: ' + issue.ftthJob.affectedAccessPoints[j].type + '</p>'
             });
             accessPointInfoWindows.push(accessPointInfoWindow);
             infoWindows.push(accessPointInfoWindow);
 
-            google.maps.event.addListener(accessPointsMarkers[j], 'click', function() {
+            google.maps.event.addListener(accessPointsMarkers[j], 'click', function () {
                 accessPointInfoWindows[this.index].open(map, accessPointsMarkers[this.index]);
             });
 
@@ -101,116 +109,160 @@ $(document).ready(function () {
             url: "/PracaInzRest/user/findUser/" + issue.ftthJob.servicemanUsername
         })
             .done(function (msg) {
-                var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
-                var servicemanLastPositionMarker = new google.maps.Marker({
-                    position: servicemanLastPosition,
-                    map: map,
-                    icon: '/PracaInzRest/resources/img/ic_build_black_24dp.png',
-                    zIndex: 9999999
-                });
-                markers.push(servicemanLastPositionMarker);
-                bounds.extend(servicemanLastPosition);
+                    var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
+                    var servicemanLastPositionMarker = new google.maps.Marker({
+                        position: servicemanLastPosition,
+                        map: map,
+                        icon: '/PracaInzRest/resources/img/ic_build_black_24dp.png',
+                        zIndex: 9999999
+                    });
 
-                // show distributionSite
-                $.ajax({
-                    method: "GET",
-                    url: "/PracaInzRest/hierarchy/findByAccessSiteLike/" + issue.ftthJob.affectedAccessPoints[0].node.name
-                })
-                    .done(function (msg) {
-                        var distributionSite = {lat: msg.distributionSiteNode.y,
-                            lng: msg.distributionSiteNode.x};
-                        var distributionSiteMarker = new google.maps.Marker({
-                            position: distributionSite,
-                            map: map,
-                            icon: '/PracaInzRest/resources/img/ic_share_black_24dp.png',
-                            zIndex: 9999999
+                    var servicemanInfoWindow = new google.maps.InfoWindow({
+                        content: '<h4>Serwisant:</h4>' +
+                        '<p>Identyfikator: ' + msg.id + '</p>' +
+                        '<p>Login: ' + msg.username + '</p>' +
+                        '<p>Szerokość geograficzna: ' + msg.lastPosition.longitude + '</p>' +
+                        '<p>Szczegóły techniczne: ' + msg.lastPosition.latitude + '</p>'
+                    });
+                    infoWindows.push(servicemanInfoWindow);
+
+                    servicemanLastPositionMarker.addListener('click', function () {
+                        servicemanInfoWindow.open(map, servicemanLastPositionMarker);
+                    });
+
+                    markers.push(servicemanLastPositionMarker);
+                    bounds.extend(servicemanLastPosition);
+
+                    // show distributionSite
+                    $.ajax({
+                        method: "GET",
+                        url: "/PracaInzRest/hierarchy/findByAccessSiteLike/" + issue.ftthJob.affectedAccessPoints[0].node.name +
+                        "_" + issue.ftthJob.affectedAccessPoints[0].description.substr(0, 3)
+                    })
+                        .done(function (msg) {
+                            var distributionSite = {
+                                lat: msg.distributionSiteNode.y,
+                                lng: msg.distributionSiteNode.x
+                            };
+
+                            distributionSiteLocation = distributionSite;
+
+                            var distributionSiteMarker = new google.maps.Marker({
+                                position: distributionSite,
+                                map: map,
+                                icon: '/PracaInzRest/resources/img/ic_room_black_24dp.png',
+                                zIndex: 9999999
+                            });
+                            markers.push(distributionSiteMarker);
+                            bounds.extend(distributionSite);
+
+                            var distributionPointInfoWindow = new google.maps.InfoWindow({
+                                content: '<h4>Punkt dystrybucji:</h4>' +
+                                '<p>Długość geograficzna: ' + msg.distributionSiteNode.x + '</p>' +
+                                '<p>Szerokość geograficzna: ' + msg.distributionSiteNode.y + '</p>' +
+                                '<p>Szczegóły techniczne: ' + msg.distributionSiteDescription + '</p>'
+                            });
+                            infoWindows.push(distributionPointInfoWindow);
+
+                            distributionSiteMarker.addListener('click', function () {
+                                distributionPointInfoWindow.open(map, distributionSiteMarker);
+                            });
+
+                            map.fitBounds(bounds);
+
+                            if ($("#showNetwork").prop('checked')) {
+                                showNetwork(map);
+                            }
                         });
-                        markers.push(distributionSiteMarker);
-                        bounds.extend(distributionSite);
 
-                        map.fitBounds(bounds);
+                    $.ajax({
+                        method: "GET",
+                        url: "/PracaInzRest/path/findPathForIssue/" + issue.id
+                    })
+                        .done(function (msg) {
+                            for (var i = 0; i < msg.length; i++) {
+                                var nodeA = {lat: msg[i].nodeA.y, lng: msg[i].nodeA.x};
+                                var nodeB = {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x};
 
-                        // TODO: add checkbox for showing all network
-                        /*$.ajax({
-                            method: "GET",
-                            url: "/PracaInzRest/edge/findEdgesInArea?x1=" + map.getBounds().getSouthWest().lng() + "&y1=" +
-                            map.getBounds().getSouthWest().lat() + "&x2=" + map.getBounds().getNorthEast().lng() + "&y2=" +
-                            map.getBounds().getNorthEast().lat()
-                        })
-                            .done(function (msg) {
-                                for (var i = 0; i < msg.length; i++) {
-                                    var nodeA = {lat: msg[i].nodeA.y, lng: msg[i].nodeA.x};
-                                    var nodeB = {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x};
-
+                                if (!(nodeA.lat == distributionSiteLocation.lat && nodeA.lat == distributionSiteLocation.lat)) {
                                     var markerNodeA = new google.maps.Marker({
                                         position: nodeA,
                                         map: map,
                                         icon: '/PracaInzRest/resources/img/redMarker.png'
                                     });
+                                    markers.push(markerNodeA);
+                                }
+
+                                if (!(nodeB.lat == distributionSiteLocation.lat && nodeB.lat == distributionSiteLocation.lat)) {
                                     var markerNodeB = new google.maps.Marker({
                                         position: nodeB,
                                         map: map,
                                         icon: '/PracaInzRest/resources/img/redMarker.png'
                                     });
-                                    markers.push(markerNodeA);
                                     markers.push(markerNodeB);
-
-                                    var edgeCoordinates = [{lat: msg[i].nodeA.y, lng: msg[i].nodeA.x},
-                                        {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x}];
-                                    var edge = new google.maps.Polyline({
-                                        path: edgeCoordinates,
-                                        geodesic: true,
-                                        strokeColor: '#000000',
-                                        strokeOpacity: 1.0,
-                                        strokeWeight: 1
-                                    });
-                                    polylines.push(edge);
-                                    edge.setMap(map);
                                 }
-                            });*/
-                    });
 
-                $.ajax({
-                    method: "GET",
-                    url: "/PracaInzRest/path/findPathForIssue/" + issue.id
-                })
-                    .done(function (msg) {
-                        for (var i = 0; i < msg.length; i++) {
-                            var nodeA = {lat: msg[i].nodeA.y, lng: msg[i].nodeA.x};
-                            var nodeB = {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x};
-
-                            var markerNodeA = new google.maps.Marker({
-                                position: nodeA,
-                                map: map,
-                                icon: '/PracaInzRest/resources/img/redMarker.png'
-                            });
-                            markers.push(markerNodeA);
-
-                            if(i != (msg.length - 1)) {
-                                var markerNodeB = new google.maps.Marker({
-                                    position: nodeB,
-                                    map: map,
-                                    icon: '/PracaInzRest/resources/img/redMarker.png'
+                                var edgeCoordinates = [{lat: msg[i].nodeA.y, lng: msg[i].nodeA.x},
+                                    {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x}];
+                                var edge = new google.maps.Polyline({
+                                    path: edgeCoordinates,
+                                    geodesic: true,
+                                    strokeColor: '#0000FF',
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 4,
+                                    zIndex: 9999999
                                 });
-                                markers.push(markerNodeB);
-                            } else {
-                                console.log("last");
+                                polylines.push(edge);
+                                edge.setMap(map);
                             }
+                        });
+                }
+            );
+    }
 
-                            var edgeCoordinates = [{lat: msg[i].nodeA.y, lng: msg[i].nodeA.x},
-                                {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x}];
-                            var edge = new google.maps.Polyline({
-                                path: edgeCoordinates,
-                                geodesic: true,
-                                strokeColor: '#0000FF',
-                                strokeOpacity: 1.0,
-                                strokeWeight: 4,
-                                zIndex: 9999999
-                            });
-                            polylines.push(edge);
-                            edge.setMap(map);
-                        }
+    function showNetwork(map) {
+        $.ajax({
+            method: "GET",
+            url: "/PracaInzRest/edge/findEdgesInArea?x1=" + map.getBounds().getSouthWest().lng() + "&y1=" +
+            map.getBounds().getSouthWest().lat() + "&x2=" + map.getBounds().getNorthEast().lng() + "&y2=" +
+            map.getBounds().getNorthEast().lat()
+        })
+            .done(function (msg) {
+                for (var i = 0; i < msg.length; i++) {
+                    var nodeA = {lat: msg[i].nodeA.y, lng: msg[i].nodeA.x};
+                    var nodeB = {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x};
+
+                    var markerNodeA = new google.maps.Marker({
+                        position: nodeA,
+                        map: map,
+                        icon: '/PracaInzRest/resources/img/redMarker.png'
                     });
+                    var markerNodeB = new google.maps.Marker({
+                        position: nodeB,
+                        map: map,
+                        icon: '/PracaInzRest/resources/img/redMarker.png'
+                    });
+                    markers.push(markerNodeA);
+                    markers.push(markerNodeB);
+
+                    networkMarkes.push(markerNodeA);
+                    networkMarkes.push(markerNodeB);
+
+                    var edgeCoordinates = [{lat: msg[i].nodeA.y, lng: msg[i].nodeA.x},
+                        {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x}];
+                    var edge = new google.maps.Polyline({
+                        path: edgeCoordinates,
+                        geodesic: true,
+                        strokeColor: '#000000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 1
+                    });
+                    polylines.push(edge);
+
+                    networkEdges.push(edge);
+
+                    edge.setMap(map);
+                }
             });
     }
 
@@ -226,16 +278,8 @@ $(document).ready(function () {
             .done(function (msg) {
                 var issueLocation;
                 var issueLocationMarkers = [];
-                var issueLocationInfoWindows = [];
                 for (var i = 0; i < msg.length; i++) {
                     issueLocation = {lat: msg[i].latitude, lng: msg[i].longitude};
-
-                    issueLocationInfoWindows[i] = new google.maps.InfoWindow({
-                        content: '<h4>Szczegóły zgłoszenia:</h4>' +
-                        '<p>Długość geograficzna: ' + msg[i].longitude + '</p>' +
-                        '<p>Szerokość geograficzna: ' + msg[i].latitude + '</p>' +
-                        '<p>Opis: ' + msg[i].description + '</p>'
-                    });
 
                     var issueLocationMarker = new google.maps.Marker({
                         position: issueLocation,
@@ -247,7 +291,7 @@ $(document).ready(function () {
                     issueLocationMarkers[i].index = i;
                     issueLocationMarkers[i].issue = msg[i];
 
-                    google.maps.event.addListener(issueLocationMarkers[i], 'click', function() {
+                    google.maps.event.addListener(issueLocationMarkers[i], 'click', function () {
                         goToIssue(this.issue);
                     });
 
@@ -255,23 +299,37 @@ $(document).ready(function () {
                     bounds.extend(issueLocation);
 
                 }
-                map.fitBounds(bounds);
-            });
 
-        $.ajax({
-            method: "GET",
-            url: "/PracaInzRest/user/findUser/" + $(this).text()
-        })
-            .done(function (msg) {
-                var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
-                var servicemanLastPositionMarker = new google.maps.Marker({
-                    position: servicemanLastPosition,
-                    map: map,
-                    icon: '/PracaInzRest/resources/img/ic_build_black_24dp.png',
-                    zIndex: 9999999
-                });
-                markers.push(servicemanLastPositionMarker);
-                bounds.extend(servicemanLastPosition);
+                $.ajax({
+                    method: "GET",
+                    url: "/PracaInzRest/user/findUser/" + msg[0].ftthJob.servicemanUsername
+                })
+                    .done(function (msg) {
+                        var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
+                        var servicemanLastPositionMarker = new google.maps.Marker({
+                            position: servicemanLastPosition,
+                            map: map,
+                            icon: '/PracaInzRest/resources/img/ic_build_black_24dp.png',
+                            zIndex: 9999999
+                        });
+                        markers.push(servicemanLastPositionMarker);
+                        bounds.extend(servicemanLastPosition);
+
+                        var servicemanInfoWindow = new google.maps.InfoWindow({
+                            content: '<h4>Serwisant:</h4>' +
+                            '<p>Identyfikator: ' + msg.id + '</p>' +
+                            '<p>Login: ' + msg.username + '</p>' +
+                            '<p>Szerokość geograficzna: ' + msg.lastPosition.longitude + '</p>' +
+                            '<p>Szczegóły techniczne: ' + msg.lastPosition.latitude + '</p>'
+                        });
+                        infoWindows.push(servicemanInfoWindow);
+
+                        servicemanLastPositionMarker.addListener('click', function () {
+                            servicemanInfoWindow.open(map, servicemanLastPositionMarker);
+                        });
+
+                        map.fitBounds(bounds);
+                    });
             });
     });
 
@@ -300,4 +358,22 @@ $(document).ready(function () {
                 map.fitBounds(bounds);
             });
     });
-});
+
+    $("#showNetwork").click(function () {
+        if ($(this).prop('checked')) {
+            showNetwork(map);
+        } else {
+            for (var i = 0; i < networkMarkes.length; i++) {
+                networkMarkes[i].setMap(null);
+            }
+
+            for (var counter2 = 0; counter2 < networkEdges.length; counter2++) {
+                networkEdges[counter2].setMap(null);
+            }
+
+            networkMarkes = [];
+            networkEdges = [];
+        }
+    });
+})
+;
