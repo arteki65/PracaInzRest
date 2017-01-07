@@ -26,8 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/edge/*").hasAuthority("SERVICEMAN").antMatchers("/user/**").hasAuthority("SERVICEMAN")
 				.antMatchers("/route").hasAuthority("SERVICEMAN").antMatchers("/ftthJob/**").hasAuthority("SERVICEMAN")
 				.antMatchers("/ftthCustomer").hasAuthority("CUSTOMER").antMatchers("/ftthIssue/**")
-				.hasAnyAuthority("CUSTOMER", "ADMIN", "SERVICEMAN").antMatchers("/path/**").hasAuthority("ADMIN")
-				.antMatchers("/hierarchy/**").hasAuthority("ADMIN").anyRequest().hasAuthority("ADMIN");
+				.hasAnyAuthority("CUSTOMER", "ADMIN", "SERVICEMAN").antMatchers("/path/**")
+				.hasAnyAuthority("ADMIN", "SERVICEMAN").antMatchers("/hierarchy/**")
+				.hasAnyAuthority("ADMIN", "SERVICEMAN").anyRequest().hasAuthority("ADMIN");
 	}
 
 	@Override

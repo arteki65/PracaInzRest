@@ -29,6 +29,11 @@ public class HierarchyServiceImpl implements HierarchyService {
 						.substring(0, hierarchyDto.getDistributionSiteDescription().indexOf("_")))));
 		hierarchyDto.setDistributionSiteNode(distributionSiteNode);
 
+		NodeDto centralSiteNode = new NodeDto(nodeRepository.findOne(Long.valueOf(
+				hierarchyDto.getCentralSiteDescription()
+						.substring(0, hierarchyDto.getCentralSiteDescription().indexOf("_")))));
+		hierarchyDto.setCentralSiteNode(centralSiteNode);
+
 		return hierarchyDto;
 	}
 }
