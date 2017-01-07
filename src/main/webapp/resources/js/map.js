@@ -95,6 +95,7 @@ $(document).ready(function () {
             markers.push(markerAccessPoint);
         }
 
+        // show sesrviceman
         $.ajax({
             method: "GET",
             url: "/PracaInzRest/user/findUser/" + issue.ftthJob.servicemanUsername
@@ -109,13 +110,69 @@ $(document).ready(function () {
                 });
                 markers.push(servicemanLastPositionMarker);
                 bounds.extend(servicemanLastPosition);
-                map.fitBounds(bounds);
+
+                // show distributionSite
+                $.ajax({
+                    method: "GET",
+                    url: "/PracaInzRest/hierarchy/findByAccessSiteLike/" + issue.ftthJob.affectedAccessPoints[0].node.name
+                })
+                    .done(function (msg) {
+                        var distributionSite = {lat: msg.distributionSiteNode.y,
+                            lng: msg.distributionSiteNode.x};
+                        var distributionSiteMarker = new google.maps.Marker({
+                            position: distributionSite,
+                            map: map,
+                            icon: '/PracaInzRest/resources/img/ic_share_black_24dp.png',
+                            zIndex: 9999999
+                        });
+                        markers.push(distributionSiteMarker);
+                        bounds.extend(distributionSite);
+
+                        map.fitBounds(bounds);
+
+                        // TODO: add checkbox for showing all network
+                        /*$.ajax({
+                            method: "GET",
+                            url: "/PracaInzRest/edge/findEdgesInArea?x1=" + map.getBounds().getSouthWest().lng() + "&y1=" +
+                            map.getBounds().getSouthWest().lat() + "&x2=" + map.getBounds().getNorthEast().lng() + "&y2=" +
+                            map.getBounds().getNorthEast().lat()
+                        })
+                            .done(function (msg) {
+                                for (var i = 0; i < msg.length; i++) {
+                                    var nodeA = {lat: msg[i].nodeA.y, lng: msg[i].nodeA.x};
+                                    var nodeB = {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x};
+
+                                    var markerNodeA = new google.maps.Marker({
+                                        position: nodeA,
+                                        map: map,
+                                        icon: '/PracaInzRest/resources/img/redMarker.png'
+                                    });
+                                    var markerNodeB = new google.maps.Marker({
+                                        position: nodeB,
+                                        map: map,
+                                        icon: '/PracaInzRest/resources/img/redMarker.png'
+                                    });
+                                    markers.push(markerNodeA);
+                                    markers.push(markerNodeB);
+
+                                    var edgeCoordinates = [{lat: msg[i].nodeA.y, lng: msg[i].nodeA.x},
+                                        {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x}];
+                                    var edge = new google.maps.Polyline({
+                                        path: edgeCoordinates,
+                                        geodesic: true,
+                                        strokeColor: '#000000',
+                                        strokeOpacity: 1.0,
+                                        strokeWeight: 1
+                                    });
+                                    polylines.push(edge);
+                                    edge.setMap(map);
+                                }
+                            });*/
+                    });
 
                 $.ajax({
                     method: "GET",
-                    url: "/PracaInzRest/edge/findEdgesInArea?x1=" + map.getBounds().getSouthWest().lng() + "&y1=" +
-                    map.getBounds().getSouthWest().lat() + "&x2=" + map.getBounds().getNorthEast().lng() + "&y2=" +
-                    map.getBounds().getNorthEast().lat()
+                    url: "/PracaInzRest/path/findPathForIssue/" + issue.id
                 })
                     .done(function (msg) {
                         for (var i = 0; i < msg.length; i++) {
@@ -127,22 +184,28 @@ $(document).ready(function () {
                                 map: map,
                                 icon: '/PracaInzRest/resources/img/redMarker.png'
                             });
-                            var markerNodeB = new google.maps.Marker({
-                                position: nodeB,
-                                map: map,
-                                icon: '/PracaInzRest/resources/img/redMarker.png'
-                            });
                             markers.push(markerNodeA);
-                            markers.push(markerNodeB);
+
+                            if(i != (msg.length - 1)) {
+                                var markerNodeB = new google.maps.Marker({
+                                    position: nodeB,
+                                    map: map,
+                                    icon: '/PracaInzRest/resources/img/redMarker.png'
+                                });
+                                markers.push(markerNodeB);
+                            } else {
+                                console.log("last");
+                            }
 
                             var edgeCoordinates = [{lat: msg[i].nodeA.y, lng: msg[i].nodeA.x},
                                 {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x}];
                             var edge = new google.maps.Polyline({
                                 path: edgeCoordinates,
                                 geodesic: true,
-                                strokeColor: '#000000',
+                                strokeColor: '#0000FF',
                                 strokeOpacity: 1.0,
-                                strokeWeight: 2
+                                strokeWeight: 4,
+                                zIndex: 9999999
                             });
                             polylines.push(edge);
                             edge.setMap(map);
@@ -185,7 +248,6 @@ $(document).ready(function () {
                     issueLocationMarkers[i].issue = msg[i];
 
                     google.maps.event.addListener(issueLocationMarkers[i], 'click', function() {
-                        //issueLocationInfoWindows[this.index].open(map, issueLocationMarkers[this.index]);
                         goToIssue(this.issue);
                     });
 
