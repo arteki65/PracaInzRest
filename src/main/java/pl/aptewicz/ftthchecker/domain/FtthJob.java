@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import pl.aptewicz.ftthchecker.dto.FtthJobDto;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 @Entity
 @Data
@@ -34,5 +36,15 @@ public class FtthJob {
 		id = ftthJobDto.getId();
 		description = ftthJobDto.getDescription();
 		jobStatus = ftthJobDto.getJobStatus();
+		affectedAccessPoints = new ArrayList<>();
+		Optional.ofNullable(ftthJobDto.getAffectedAccessPoints()).ifPresent(accessPointDtos -> accessPointDtos
+				.forEach(accessPointDto -> affectedAccessPoints.add(new AccessPoint(accessPointDto))));
+	}
+
+	@Override
+	public String toString() {
+		return "FtthJob{" + "id=" + id + ", description='" + description + '\'' + ", jobStatus=" + jobStatus
+				+ ", affectedAccessPoints=" + affectedAccessPoints
+				+ ", ftthIssue=" + ftthIssue + '}';
 	}
 }

@@ -51,7 +51,8 @@ $(document).ready(function () {
             '<p>Identyfikator: ' + issue.id + '</p>' +
             '<p>Długość geograficzna: ' + issue.longitude + '</p>' +
             '<p>Szerokość geograficzna: ' + issue.latitude + '</p>' +
-            '<p>Opis: ' + issue.description + '</p>'
+            '<p>Opis: ' + issue.description + '</p>' +
+            '<p>Status: ' + issue.ftthJob.jobStatus + '</p>'
         });
         infoWindows.push(issueLocationInfoWindow);
 

@@ -4,6 +4,8 @@
 >
 <head>
     <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <style>
         #map {
             height: 800px;
@@ -24,9 +26,9 @@
         </form>
     </div>
     <div th:class="row">
-        <div th:class="'col-md-4'">
+        <div th:class="'col-md-4 col-sm-12'">
             <div th:class="row">
-                <div th:class="'col-md-12 list-group'">
+                <div th:class="'col-md-12 col-sm-12 list-group'">
                     <a th:each="ftthCheckerUser : ${ftthCheckerUsers}"
                        th:text="${ftthCheckerUser.username}" th:class="'list-group-item serviceman'"
                        th:style="'text-align: center; cursor: pointer'"></a>
@@ -35,11 +37,11 @@
                 </div>
             </div>
         </div>
-        <div th:class="col-md-8">
+        <div th:class="'col-md-8 col-sm-12'">
             <div th:class="row">
-                <div th:id="map" th:class="col-md-12">
+                <div th:id="map" th:class="'col-md-12 col-sm-12'">
                 </div>
-                <div th:class="col-md-12">
+                <div th:class="'col-md-12 col-sm-12'">
                     <div th:class="checkbox">
                         <label><input th:type="checkbox" th:id="showNetwork" th:text="#{showNetwork}"
                                       th:value="showNetwork"/></label>

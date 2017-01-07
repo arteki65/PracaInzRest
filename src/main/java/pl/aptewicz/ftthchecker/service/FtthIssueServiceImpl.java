@@ -34,16 +34,19 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 
 	private final AccessPointRepository accessPointRepository;
 
+	private final DistanceService distanceService;
+
 	@Autowired
 	public FtthIssueServiceImpl(FtthCustomerRepository ftthCustomerRepository, FtthIssueRepository ftthIssueRepository,
 			FtthJobRepository ftthJobRepository, FtthCheckerUserRepository ftthCheckerUserRepository,
-			RouteService routeService, AccessPointRepository accessPointRepository) {
+			RouteService routeService, AccessPointRepository accessPointRepository, DistanceService distanceService) {
 		this.ftthCustomerRepository = ftthCustomerRepository;
 		this.ftthIssueRepository = ftthIssueRepository;
 		this.ftthJobRepository = ftthJobRepository;
 		this.ftthCheckerUserRepository = ftthCheckerUserRepository;
 		this.routeService = routeService;
 		this.accessPointRepository = accessPointRepository;
+		this.distanceService = distanceService;
 	}
 
 	@Override
@@ -93,7 +96,9 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 		double minDistance = Double.MAX_VALUE;
 
 		for(AccessPoint accessPoint : accessPointsInArea) {
-			double distanceFromIssueLocation = getDistance(accessPoint.getNode().getY(), accessPoint.getNode().getX(), issueY, issueX);
+			double distanceFromIssueLocation = distanceService.getDistance(accessPoint.getNode().getY(), accessPoint
+					.getNode().getX
+					(), issueY, issueX);
 			if(distanceFromIssueLocation < minDistance) {
 				minDistance = distanceFromIssueLocation;
 				if(accessPoints.size() == 1) {
@@ -104,22 +109,5 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 		}
 
 		return accessPoints;
-	}
-
-	private double getDistance(double latitude, double longitude, double latitude2, double longitude2) {
-		int earthRadiusInKm = 6371;
-
-		double degLat = deg2rad(latitude2 - latitude);
-		double degLon = deg2rad(longitude2 - longitude);
-
-		double a =
-				Math.sin(degLat / 2) * Math.sin(degLat / 2) + Math.cos(deg2rad(latitude)) * Math.cos(deg2rad(latitude2))
-						* Math.sin(degLon / 2) * Math.sin(degLon / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		return earthRadiusInKm * c;
-	}
-
-	private double deg2rad(double deg) {
-		return deg * (Math.PI / 180);
 	}
 }
