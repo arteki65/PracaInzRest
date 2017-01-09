@@ -7,7 +7,7 @@ import pl.aptewicz.ftthchecker.googleapi.DistanceMatrixApiResponse;
 @Service
 public class RouteServiceImpl implements RouteService {
 
-	private static final String GOOGLE_API_KEY = "AIzaSyB-QKyOwRzSMznccH_jPwYwgxSjF2CrhZ8";
+	private static final String GOOGLE_API_KEY = "AIzaSyA1dbK4YfwhnVUhQYNHrUUBy1T3_V8evdA";
 
 	@Override
 	public String findRoute(String origin, String destination) {
