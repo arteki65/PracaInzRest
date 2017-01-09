@@ -4,7 +4,6 @@ var polylines = [];
 var infoWindows = [];
 var networkMarkes = [];
 var networkEdges = [];
-var distributionSiteLocation;
 
 $(document).ready(function () {
     var bounds = new google.maps.LatLngBounds();
@@ -29,7 +28,6 @@ $(document).ready(function () {
         }
         polylines = [];
         bounds = new google.maps.LatLngBounds();
-        distributionSiteLocation = null;
     }
 
     function goToIssue(issue) {
@@ -49,8 +47,6 @@ $(document).ready(function () {
         var issueLocationInfoWindow = new google.maps.InfoWindow({
             content: '<h4>Szczegóły zgłoszenia:</h4>' +
             '<p>Identyfikator: ' + issue.id + '</p>' +
-            '<p>Długość geograficzna: ' + issue.longitude + '</p>' +
-            '<p>Szerokość geograficzna: ' + issue.latitude + '</p>' +
             '<p>Opis: ' + issue.description + '</p>' +
             '<p>Status: ' + issue.ftthJob.jobStatus + '</p>'
         });
@@ -89,8 +85,6 @@ $(document).ready(function () {
 
             var accessPointInfoWindow = new google.maps.InfoWindow({
                 content: '<h4>Punkt dostępowy:</h4>' +
-                '<p>Długość geograficzna: ' + affectedAccessPointNode.x + '</p>' +
-                '<p>Szerokość geograficzna: ' + affectedAccessPointNode.y + '</p>' +
                 '<p>Szczegóły techniczne: ' + issue.ftthJob.affectedAccessPoints[j].description + '</p>' +
                 '<p>Typ: ' + issue.ftthJob.affectedAccessPoints[j].type + '</p>'
             });
@@ -121,9 +115,7 @@ $(document).ready(function () {
                     var servicemanInfoWindow = new google.maps.InfoWindow({
                         content: '<h4>Serwisant:</h4>' +
                         '<p>Identyfikator: ' + msg.id + '</p>' +
-                        '<p>Login: ' + msg.username + '</p>' +
-                        '<p>Szerokość geograficzna: ' + msg.lastPosition.longitude + '</p>' +
-                        '<p>Szczegóły techniczne: ' + msg.lastPosition.latitude + '</p>'
+                        '<p>Login: ' + msg.username + '</p>'
                     });
                     infoWindows.push(servicemanInfoWindow);
 
@@ -146,8 +138,6 @@ $(document).ready(function () {
                                 lng: msg.distributionSiteNode.x
                             };
 
-                            distributionSiteLocation = distributionSite;
-
                             var distributionSiteMarker = new google.maps.Marker({
                                 position: distributionSite,
                                 map: map,
@@ -159,14 +149,36 @@ $(document).ready(function () {
 
                             var distributionPointInfoWindow = new google.maps.InfoWindow({
                                 content: '<h4>Punkt dystrybucji:</h4>' +
-                                '<p>Długość geograficzna: ' + msg.distributionSiteNode.x + '</p>' +
-                                '<p>Szerokość geograficzna: ' + msg.distributionSiteNode.y + '</p>' +
                                 '<p>Szczegóły techniczne: ' + msg.distributionSiteDescription + '</p>'
                             });
                             infoWindows.push(distributionPointInfoWindow);
 
                             distributionSiteMarker.addListener('click', function () {
                                 distributionPointInfoWindow.open(map, distributionSiteMarker);
+                            });
+
+                            var centralSite = {
+                                lat: msg.centralSiteNode.y,
+                                lng: msg.centralSiteNode.x
+                            };
+
+                            var centralSiteMarker = new google.maps.Marker({
+                                position: centralSite,
+                                map: map,
+                                icon: '/PracaInzRest/resources/img/ic_room_black_24dp.png',
+                                zIndex: 9999999
+                            });
+                            markers.push(centralSiteMarker);
+                            bounds.extend(centralSite);
+
+                            var centralSiteInfoWindow = new google.maps.InfoWindow({
+                                content: '<h4>OLT:</h4>' +
+                                '<p>Szczegóły techniczne: ' + msg.distributionSiteDescription + '</p>'
+                            });
+                            infoWindows.push(centralSiteInfoWindow);
+
+                            centralSiteMarker.addListener('click', function () {
+                                centralSiteInfoWindow.open(map, centralSiteMarker);
                             });
 
                             map.fitBounds(bounds);
@@ -182,29 +194,9 @@ $(document).ready(function () {
                     })
                         .done(function (msg) {
                             for (var i = 0; i < msg.length; i++) {
-                                var nodeA = {lat: msg[i].nodeA.y, lng: msg[i].nodeA.x};
-                                var nodeB = {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x};
-
-                                if (!(nodeA.lat == distributionSiteLocation.lat && nodeA.lat == distributionSiteLocation.lat)) {
-                                    var markerNodeA = new google.maps.Marker({
-                                        position: nodeA,
-                                        map: map,
-                                        icon: '/PracaInzRest/resources/img/redMarker.png'
-                                    });
-                                    markers.push(markerNodeA);
-                                }
-
-                                if (!(nodeB.lat == distributionSiteLocation.lat && nodeB.lat == distributionSiteLocation.lat)) {
-                                    var markerNodeB = new google.maps.Marker({
-                                        position: nodeB,
-                                        map: map,
-                                        icon: '/PracaInzRest/resources/img/redMarker.png'
-                                    });
-                                    markers.push(markerNodeB);
-                                }
-
                                 var edgeCoordinates = [{lat: msg[i].nodeA.y, lng: msg[i].nodeA.x},
                                     {lat: msg[i].nodeB.y, lng: msg[i].nodeB.x}];
+
                                 var edge = new google.maps.Polyline({
                                     path: edgeCoordinates,
                                     geodesic: true,
@@ -213,6 +205,7 @@ $(document).ready(function () {
                                     strokeWeight: 4,
                                     zIndex: 9999999
                                 });
+
                                 polylines.push(edge);
                                 edge.setMap(map);
                             }
