@@ -4,24 +4,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import pl.aptewicz.ftthchecker.async.FindFtthCheckerUserForJobAsyncTask;
-import pl.aptewicz.ftthchecker.domain.Edge;
+import pl.aptewicz.ftthchecker.domain.AccessPoint;
 import pl.aptewicz.ftthchecker.domain.FtthIssue;
 import pl.aptewicz.ftthchecker.domain.FtthJob;
 import pl.aptewicz.ftthchecker.domain.FtthJobStatus;
 import pl.aptewicz.ftthchecker.dto.FtthIssueDto;
 import pl.aptewicz.ftthchecker.exception.FtthRestApiException;
 import pl.aptewicz.ftthchecker.exception.FtthRestApiExceptionConstants;
-import pl.aptewicz.ftthchecker.repository.FtthCheckerUserRepository;
-import pl.aptewicz.ftthchecker.repository.FtthCustomerRepository;
-import pl.aptewicz.ftthchecker.repository.FtthIssueRepository;
-import pl.aptewicz.ftthchecker.repository.FtthJobRepository;
+import pl.aptewicz.ftthchecker.repository.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class FtthIssueServiceImpl implements FtthIssueService {
 
-	private static final double DELTA = 0.0009;
+	private static final double DELTA = 0.0003;
 
 	private final FtthCustomerRepository ftthCustomerRepository;
 
@@ -31,20 +30,23 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 
 	private final FtthCheckerUserRepository ftthCheckerUserRepository;
 
-	private final EdgeServiceInterface edgeService;
-
 	private final RouteService routeService;
+
+	private final AccessPointRepository accessPointRepository;
+
+	private final DistanceService distanceService;
 
 	@Autowired
 	public FtthIssueServiceImpl(FtthCustomerRepository ftthCustomerRepository, FtthIssueRepository ftthIssueRepository,
 			FtthJobRepository ftthJobRepository, FtthCheckerUserRepository ftthCheckerUserRepository,
-			EdgeServiceInterface edgeService, RouteService routeService) {
+			RouteService routeService, AccessPointRepository accessPointRepository, DistanceService distanceService) {
 		this.ftthCustomerRepository = ftthCustomerRepository;
 		this.ftthIssueRepository = ftthIssueRepository;
 		this.ftthJobRepository = ftthJobRepository;
 		this.ftthCheckerUserRepository = ftthCheckerUserRepository;
-		this.edgeService = edgeService;
 		this.routeService = routeService;
+		this.accessPointRepository = accessPointRepository;
+		this.distanceService = distanceService;
 	}
 
 	@Override
@@ -61,18 +63,20 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 		ftthJob.setJobStatus(FtthJobStatus.NEW);
 
 		double delta = DELTA;
-		Collection<Edge> edgesInArea = edgeService
-				.findEdgesInArea(issueX - delta, issueY - delta, issueX + delta, issueY + delta);
+		Collection<AccessPoint> accessPointsInArea = accessPointRepository
+				.findAccessPointsInArea(issueX - delta, issueY - delta, issueX + delta, issueY + delta);
 		int attempts = 0;
-		while (edgesInArea.isEmpty() && attempts < 10) {
+		while (accessPointsInArea.isEmpty() && attempts < 10) {
 			attempts++;
 			delta = delta + DELTA;
-			edgesInArea = edgeService.findEdgesInArea(issueX - delta, issueY - delta, issueX + delta, issueY + delta);
+			accessPointsInArea = accessPointRepository
+					.findAccessPointsInArea(issueX - delta, issueY - delta, issueX + delta, issueY + delta);
 		}
 
-		if(!edgesInArea.isEmpty()) {
+		if (!accessPointsInArea.isEmpty()) {
+			accessPointsInArea = findNearestAccessPoint(accessPointsInArea, issueX, issueY);
 			ftthIssueRepository.save(ftthIssue);
-			ftthJob.setAffectedEdges(edgesInArea);
+			ftthJob.setAffectedAccessPoints(accessPointsInArea);
 			ftthIssue.setFtthJob(ftthJobRepository.save(ftthJob));
 			ftthIssueRepository.save(ftthIssue);
 
@@ -84,5 +88,26 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 		}
 
 		throw new FtthRestApiException(FtthRestApiExceptionConstants.NO_EDGES_NEAR_ISSUE_LOCATION_FOUND);
+	}
+
+	private Collection<AccessPoint> findNearestAccessPoint(Collection<AccessPoint> accessPointsInArea, double issueX,
+			double issueY) {
+		List<AccessPoint> accessPoints = new ArrayList<>();
+		double minDistance = Double.MAX_VALUE;
+
+		for(AccessPoint accessPoint : accessPointsInArea) {
+			double distanceFromIssueLocation = distanceService.getDistance(accessPoint.getNode().getY(), accessPoint
+					.getNode().getX
+					(), issueY, issueX);
+			if(distanceFromIssueLocation < minDistance) {
+				minDistance = distanceFromIssueLocation;
+				if(accessPoints.size() == 1) {
+					accessPoints.remove(0);
+				}
+				accessPoints.add(0, accessPoint);
+			}
+		}
+
+		return accessPoints;
 	}
 }

@@ -4,14 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.aptewicz.ftthchecker.domain.FtthCheckerUser;
 import pl.aptewicz.ftthchecker.domain.FtthCheckerUserRole;
 import pl.aptewicz.ftthchecker.dto.FtthCheckerUserDto;
 import pl.aptewicz.ftthchecker.repository.FtthCheckerUserRepository;
+import pl.aptewicz.ftthchecker.repository.LatLngRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,9 +20,13 @@ public class FtthCheckerUserController {
 
 	private final FtthCheckerUserRepository ftthCheckerUserRepository;
 
+	private final LatLngRepository latLngRepository;
+
 	@Autowired
-	public FtthCheckerUserController(FtthCheckerUserRepository ftthCheckerUserRepository) {
+	public FtthCheckerUserController(FtthCheckerUserRepository ftthCheckerUserRepository,
+			LatLngRepository latLngRepository) {
 		this.ftthCheckerUserRepository = ftthCheckerUserRepository;
+		this.latLngRepository = latLngRepository;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -59,5 +61,15 @@ public class FtthCheckerUserController {
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+	}
+
+	@RequestMapping(method = RequestMethod.PUT, path = "/updateLastLocation")
+	public ResponseEntity<FtthCheckerUserDto> updateLastLocation(@RequestBody FtthCheckerUserDto ftthCheckerUserDto) {
+		FtthCheckerUser ftthCheckerUser = ftthCheckerUserRepository.findOne(ftthCheckerUserDto.getId());
+		ftthCheckerUser.getLastPosition().setLatitude(ftthCheckerUserDto.getLastPosition().getLatitude());
+		ftthCheckerUser.getLastPosition().setLongitude(ftthCheckerUserDto.getLastPosition().getLongitude());
+		latLngRepository.save(ftthCheckerUser.getLastPosition());
+		return new ResponseEntity<>(new FtthCheckerUserDto(ftthCheckerUserRepository.save(ftthCheckerUser)),
+				HttpStatus.OK);
 	}
 }

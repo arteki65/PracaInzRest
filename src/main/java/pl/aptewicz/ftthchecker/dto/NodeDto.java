@@ -1,29 +1,24 @@
-package pl.aptewicz.ftthchecker.domain;
+package pl.aptewicz.ftthchecker.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.aptewicz.ftthchecker.dto.NodeDto;
+import pl.aptewicz.ftthchecker.domain.Node;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Node {
+public class NodeDto {
 
-	@Id
 	private Long name;
 
 	private Double x;
 
 	private Double y;
 
-	public Node(NodeDto node) {
+	public NodeDto(Node node) {
 		name = node.getName();
-		x = node.getX();
+		x =  node.getX();
 		y = node.getY();
 	}
 }

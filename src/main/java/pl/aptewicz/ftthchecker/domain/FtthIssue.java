@@ -34,4 +34,10 @@ public class FtthIssue {
 		longitude = ftthIssueDto.getLongitude();
 		latitude = ftthIssueDto.getLatitude();
 	}
+
+	@Override
+	public String toString() {
+		return "FtthIssue{" + "id=" + id + ", description='" + description + '\'' + ", longitude=" + longitude
+				+ ", latitude=" + latitude + ", ftthCustomer=" + ftthCustomer + '}';
+	}
 }

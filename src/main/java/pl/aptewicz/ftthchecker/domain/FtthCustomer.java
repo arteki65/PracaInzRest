@@ -19,4 +19,9 @@ public class FtthCustomer {
 
 	@OneToMany(mappedBy = "ftthCustomer", fetch = FetchType.EAGER)
 	private Collection<FtthIssue> ftthIssues;
+
+	@Override
+	public String toString() {
+		return "FtthCustomer{" + "id=" + id + ", username='" + username + '\'' + ", password='" + '}';
+	}
 }
