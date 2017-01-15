@@ -173,7 +173,7 @@ $(document).ready(function () {
 
                             var centralSiteInfoWindow = new google.maps.InfoWindow({
                                 content: '<h4>OLT:</h4>' +
-                                '<p>Szczegóły techniczne: ' + msg.distributionSiteDescription + '</p>'
+                                '<p>Szczegóły techniczne: ' + msg.centralSiteDescription + '</p>'
                             });
                             infoWindows.push(centralSiteInfoWindow);
 
