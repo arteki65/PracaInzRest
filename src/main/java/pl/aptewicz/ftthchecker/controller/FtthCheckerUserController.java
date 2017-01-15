@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.aptewicz.ftthchecker.domain.FtthCheckerUser;
 import pl.aptewicz.ftthchecker.domain.FtthCheckerUserRole;
 import pl.aptewicz.ftthchecker.dto.FtthCheckerUserDto;
+import pl.aptewicz.ftthchecker.dto.LatLngDto;
 import pl.aptewicz.ftthchecker.repository.FtthCheckerUserRepository;
 import pl.aptewicz.ftthchecker.repository.LatLngRepository;
 
@@ -71,5 +72,15 @@ public class FtthCheckerUserController {
 		latLngRepository.save(ftthCheckerUser.getLastPosition());
 		return new ResponseEntity<>(new FtthCheckerUserDto(ftthCheckerUserRepository.save(ftthCheckerUser)),
 				HttpStatus.OK);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "/getLastLocation/{username}")
+	public ResponseEntity<FtthCheckerUserDto> getLastLocation(@PathVariable("username") String username) {
+		FtthCheckerUser ftthCheckerUser = ftthCheckerUserRepository.findByUsername(username);
+		FtthCheckerUserDto ftthCheckerUserDto = FtthCheckerUserDto.builder().id(ftthCheckerUser.getId())
+				.ftthCheckerUserRole(ftthCheckerUser.getFtthUserRole())
+				.lastPosition(new LatLngDto(ftthCheckerUser.getLastPosition())).username(ftthCheckerUser.getUsername())
+				.build();
+		return new ResponseEntity<>(ftthCheckerUserDto, HttpStatus.OK);
 	}
 }

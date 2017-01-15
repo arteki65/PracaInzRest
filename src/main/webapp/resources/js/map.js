@@ -101,7 +101,7 @@ $(document).ready(function () {
         // show sesrviceman
         $.ajax({
             method: "GET",
-            url: "/PracaInzRest/user/findUser/" + issue.ftthJob.servicemanUsername
+            url: "/PracaInzRest/user/getLastLocation/" + issue.ftthJob.servicemanUsername
         })
             .done(function (msg) {
                     var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
@@ -299,7 +299,7 @@ $(document).ready(function () {
 
                 $.ajax({
                     method: "GET",
-                    url: "/PracaInzRest/user/findUser/" + servicemanUsername
+                    url: "/PracaInzRest/user/getLastLocation/" + servicemanUsername
                 })
                     .done(function (msg) {
                         var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
