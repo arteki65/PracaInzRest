@@ -1,4 +1,4 @@
-package pl.aptewicz.ftthchecker.contorller.mvc;
+package pl.aptewicz.ftthchecker.controller.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

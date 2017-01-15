@@ -2,5 +2,5 @@ package pl.aptewicz.ftthchecker.service;
 
 public interface DistanceService {
 
-	double getDistance(double latitude, double longitude, double latitude2, double longitude2);
+	double calculateDistance(double latitude, double longitude, double latitude2, double longitude2);
 }

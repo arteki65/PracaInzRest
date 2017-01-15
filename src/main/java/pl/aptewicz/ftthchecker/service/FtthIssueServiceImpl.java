@@ -96,7 +96,7 @@ public class FtthIssueServiceImpl implements FtthIssueService {
 		double minDistance = Double.MAX_VALUE;
 
 		for(AccessPoint accessPoint : accessPointsInArea) {
-			double distanceFromIssueLocation = distanceService.getDistance(accessPoint.getNode().getY(), accessPoint
+			double distanceFromIssueLocation = distanceService.calculateDistance(accessPoint.getNode().getY(), accessPoint
 					.getNode().getX
 					(), issueY, issueX);
 			if(distanceFromIssueLocation < minDistance) {

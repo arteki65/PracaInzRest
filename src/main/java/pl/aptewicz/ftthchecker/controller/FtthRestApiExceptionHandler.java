@@ -1,4 +1,4 @@
-package pl.aptewicz.ftthchecker.contorller;
+package pl.aptewicz.ftthchecker.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

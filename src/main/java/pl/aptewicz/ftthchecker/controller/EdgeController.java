@@ -1,4 +1,4 @@
-package pl.aptewicz.ftthchecker.contorller;
+package pl.aptewicz.ftthchecker.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

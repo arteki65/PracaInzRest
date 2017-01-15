@@ -12,7 +12,7 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import org.thymeleaf.templateresolver.TemplateResolver;
-import pl.aptewicz.ftthchecker.contorller.ControllerConfigurationPoint;
+import pl.aptewicz.ftthchecker.controller.ControllerConfigurationPoint;
 
 @Configuration
 @EnableWebMvc

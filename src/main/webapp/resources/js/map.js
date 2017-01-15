@@ -263,15 +263,18 @@ $(document).ready(function () {
     $(".serviceman").click(function () {
         clearMap();
 
+        var servicemanUsername = $(this).text();
+
         $(".list-group").find(".serviceman").removeClass("active");
         $(this).addClass("active");
         $.ajax({
             method: "GET",
-            url: "/PracaInzRest/ftthIssue/" + $(this).text()
+            url: "/PracaInzRest/ftthIssue/" + servicemanUsername
         })
             .done(function (msg) {
                 var issueLocation;
                 var issueLocationMarkers = [];
+                var numberOfIssues = msg.length;
                 for (var i = 0; i < msg.length; i++) {
                     issueLocation = {lat: msg[i].latitude, lng: msg[i].longitude};
 
@@ -296,7 +299,7 @@ $(document).ready(function () {
 
                 $.ajax({
                     method: "GET",
-                    url: "/PracaInzRest/user/findUser/" + msg[0].ftthJob.servicemanUsername
+                    url: "/PracaInzRest/user/findUser/" + servicemanUsername
                 })
                     .done(function (msg) {
                         var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
@@ -312,9 +315,7 @@ $(document).ready(function () {
                         var servicemanInfoWindow = new google.maps.InfoWindow({
                             content: '<h4>Serwisant:</h4>' +
                             '<p>Identyfikator: ' + msg.id + '</p>' +
-                            '<p>Login: ' + msg.username + '</p>' +
-                            '<p>Szerokość geograficzna: ' + msg.lastPosition.longitude + '</p>' +
-                            '<p>Szczegóły techniczne: ' + msg.lastPosition.latitude + '</p>'
+                            '<p>Login: ' + msg.username + '</p>'
                         });
                         infoWindows.push(servicemanInfoWindow);
 
@@ -322,7 +323,12 @@ $(document).ready(function () {
                             servicemanInfoWindow.open(map, servicemanLastPositionMarker);
                         });
 
-                        map.fitBounds(bounds);
+                        if(numberOfIssues > 0) {
+                            map.fitBounds(bounds);
+                        } else {
+                            map.setCenter(servicemanLastPosition);
+                            map.setZoom(14);
+                        }
                     });
             });
     });

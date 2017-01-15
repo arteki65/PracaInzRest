@@ -1,4 +1,4 @@
-package pl.aptewicz.ftthchecker.contorller;
+package pl.aptewicz.ftthchecker.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,18 +35,11 @@ public class FtthJobController {
 		this.distanceService = distanceService;
 	}
 
-	@RequestMapping(method = RequestMethod.PUT)
-	public ResponseEntity<FtthJobDto> createFtthJob(@RequestBody FtthJobDto ftthJobDto) {
-		FtthJob ftthJob = new FtthJob(ftthJobDto);
-		ftthJob.setFtthCheckerUser(ftthCheckerUserRepository.findByUsername(ftthJobDto.getServicemanUsername()));
-		return new ResponseEntity<>(new FtthJobDto(ftthJobRepository.save(ftthJob)), HttpStatus.CREATED);
-	}
-
 	@RequestMapping(method = RequestMethod.PUT, path = "/updateStatus")
 	public ResponseEntity<FtthJobDto> updateFtthJobD(@RequestBody FtthJobDto ftthJobDto) {
 		FtthJob ftthJob = ftthJobRepository.findOne(ftthJobDto.getId());
 		LatLng lastPosition = ftthJob.getFtthCheckerUser().getLastPosition();
-		if(distanceService.getDistance(lastPosition.getLatitude(), lastPosition.getLongitude(), ftthJob.getFtthIssue
+		if(distanceService.calculateDistance(lastPosition.getLatitude(), lastPosition.getLongitude(), ftthJob.getFtthIssue
 				().getLatitude(), ftthJob.getFtthIssue().getLongitude()) > 0.1) {
 			throw new FtthRestApiException(FtthRestApiExceptionConstants.SERVICEMAN_TOO_FAR_FROM_ISSUE_LOCATION);
 		}
