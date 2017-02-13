@@ -269,7 +269,7 @@ $(document).ready(function () {
         $(this).addClass("active");
         $.ajax({
             method: "GET",
-            url: "/PracaInzRest/ftthIssue/" + servicemanUsername
+            url: "/PracaInzRest/ftthIssue/active/" + servicemanUsername
         })
             .done(function (msg) {
                 var issueLocation;

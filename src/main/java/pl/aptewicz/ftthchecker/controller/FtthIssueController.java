@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import pl.aptewicz.ftthchecker.domain.FtthCheckerUser;
 import pl.aptewicz.ftthchecker.domain.FtthJob;
+import pl.aptewicz.ftthchecker.domain.FtthJobStatus;
 import pl.aptewicz.ftthchecker.dto.FtthIssueDto;
 import pl.aptewicz.ftthchecker.repository.FtthCheckerUserRepository;
 import pl.aptewicz.ftthchecker.repository.FtthJobRepository;
@@ -46,6 +47,20 @@ public class FtthIssueController {
 		Collection<FtthJob> ftthJobs = ftthJobRepository.findByFtthCheckerUser(serviceman);
 		Collection<FtthIssueDto> ftthIssues = new ArrayList<>();
 		ftthJobs.forEach(ftthJob -> ftthIssues.add(new FtthIssueDto(ftthJob.getFtthIssue())));
+		return new ResponseEntity<>(ftthIssues, HttpStatus.OK);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "/active/{servicemanUsername}")
+	public ResponseEntity<Collection<FtthIssueDto>> findActiveIssuesForServiceman(
+			@PathVariable String servicemanUsername) {
+		FtthCheckerUser serviceman = ftthCheckerUserRepository.findByUsername(servicemanUsername);
+		Collection<FtthJob> ftthJobs = ftthJobRepository.findByFtthCheckerUser(serviceman);
+		Collection<FtthIssueDto> ftthIssues = new ArrayList<>();
+		ftthJobs.forEach(ftthJob -> {
+			if (!FtthJobStatus.DONE.equals(ftthJob.getJobStatus())) {
+				ftthIssues.add(new FtthIssueDto(ftthJob.getFtthIssue()));
+			}
+		});
 		return new ResponseEntity<>(ftthIssues, HttpStatus.OK);
 	}
 }
