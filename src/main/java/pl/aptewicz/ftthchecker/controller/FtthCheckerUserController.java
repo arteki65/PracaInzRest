@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pl.aptewicz.ftthchecker.domain.FtthCheckerUser;
 import pl.aptewicz.ftthchecker.domain.FtthCheckerUserRole;
+import pl.aptewicz.ftthchecker.domain.LatLng;
 import pl.aptewicz.ftthchecker.dto.FtthCheckerUserDto;
 import pl.aptewicz.ftthchecker.dto.LatLngDto;
 import pl.aptewicz.ftthchecker.repository.FtthCheckerUserRepository;
@@ -67,8 +68,13 @@ public class FtthCheckerUserController {
 	@RequestMapping(method = RequestMethod.PUT, path = "/updateLastLocation")
 	public ResponseEntity<FtthCheckerUserDto> updateLastLocation(@RequestBody FtthCheckerUserDto ftthCheckerUserDto) {
 		FtthCheckerUser ftthCheckerUser = ftthCheckerUserRepository.findOne(ftthCheckerUserDto.getId());
-		ftthCheckerUser.getLastPosition().setLatitude(ftthCheckerUserDto.getLastPosition().getLatitude());
-		ftthCheckerUser.getLastPosition().setLongitude(ftthCheckerUserDto.getLastPosition().getLongitude());
+		if(ftthCheckerUser.getLastPosition() != null) {
+			ftthCheckerUser.getLastPosition().setLatitude(ftthCheckerUserDto.getLastPosition().getLatitude());
+			ftthCheckerUser.getLastPosition().setLongitude(ftthCheckerUserDto.getLastPosition().getLongitude());
+		} else {
+			LatLng lastLocation = new LatLng(ftthCheckerUserDto.getLastPosition());
+			ftthCheckerUser.setLastPosition(lastLocation);
+		}
 		latLngRepository.save(ftthCheckerUser.getLastPosition());
 		return new ResponseEntity<>(new FtthCheckerUserDto(ftthCheckerUserRepository.save(ftthCheckerUser)),
 				HttpStatus.OK);

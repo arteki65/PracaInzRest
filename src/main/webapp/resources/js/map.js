@@ -265,11 +265,11 @@ $(document).ready(function () {
 
         var servicemanUsername = $(this).text();
 
-        $(".list-group").find(".serviceman").removeClass("active");
+        $(".list-group").find(".list-group-item").removeClass("active");
         $(this).addClass("active");
         $.ajax({
             method: "GET",
-            url: "/PracaInzRest/ftthIssue/" + servicemanUsername
+            url: "/PracaInzRest/ftthIssue/active/" + servicemanUsername
         })
             .done(function (msg) {
                 var issueLocation;
@@ -323,7 +323,7 @@ $(document).ready(function () {
                             servicemanInfoWindow.open(map, servicemanLastPositionMarker);
                         });
 
-                        if(numberOfIssues > 0) {
+                        if (numberOfIssues > 0) {
                             map.fitBounds(bounds);
                         } else {
                             map.setCenter(servicemanLastPosition);
@@ -333,29 +333,56 @@ $(document).ready(function () {
             });
     });
 
+    function fitBounds() {
+        map.fitBounds(bounds);
+    }
+
     $("#showAllServicemen").click(function () {
         clearMap();
 
+        $(".list-group").find(".list-group-item").removeClass("active");
+        $(this).addClass("active");
+
+        var fetchedServicemen = 0;
+
         $.ajax({
             method: "GET",
-            url: "/PracaInzRest/accessPoint//findAccessPointsInArea?x1=" + map.getBounds().getSouthWest().lng() + "&y1=" +
-            map.getBounds().getSouthWest().lat() + "&x2=" + map.getBounds().getNorthEast().lng() + "&y2=" +
-            map.getBounds().getNorthEast().lat()
+            url: "/PracaInzRest/user/servicemen"
         })
             .done(function (msg) {
+                var countOfServicemen = msg.length;
                 for (var i = 0; i < msg.length; i++) {
-                    var node = {lat: msg[i].node.y, lng: msg[i].node.x};
+                    $.ajax({
+                        method: "GET",
+                        url: "/PracaInzRest/user/getLastLocation/" + msg[i]
+                    }).done(function (msg) {
+                        var servicemanLastPosition = {lat: msg.lastPosition.latitude, lng: msg.lastPosition.longitude};
+                        var servicemanLastPositionMarker = new google.maps.Marker({
+                            position: servicemanLastPosition,
+                            map: map,
+                            icon: '/PracaInzRest/resources/img/ic_build_black_24dp.png',
+                            zIndex: 9999999
+                        });
+                        markers.push(servicemanLastPositionMarker);
+                        bounds.extend(servicemanLastPosition);
 
-                    var markerNode = new google.maps.Marker({
-                        position: node,
-                        map: map,
-                        icon: '/PracaInzRest/resources/img/redMarker.png'
+                        var servicemanInfoWindow = new google.maps.InfoWindow({
+                            content: '<h4>Serwisant:</h4>' +
+                            '<p>Identyfikator: ' + msg.id + '</p>' +
+                            '<p>Login: ' + msg.username + '</p>'
+                        });
+                        infoWindows.push(servicemanInfoWindow);
+
+                        servicemanLastPositionMarker.addListener('click', function () {
+                            servicemanInfoWindow.open(map, servicemanLastPositionMarker);
+                        });
+                        fetchedServicemen++;
+
+                        if(fetchedServicemen === countOfServicemen) {
+                            fitBounds();
+                        }
                     });
-                    markers.push(markerNode);
-                    bounds.extend(node);
                 }
-
-                map.fitBounds(bounds);
             });
     });
 
