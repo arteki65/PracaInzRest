@@ -1,4 +1,4 @@
-package pl.aptewicz.ftthchecker.contorller;
+package pl.aptewicz.ftthchecker.controller;
 
 public class ControllerConfigurationPoint {
 

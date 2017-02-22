@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link th:rel="stylesheet" th:href="@{/resources/bootstrap-3.3.7-dist/css/bootstrap.min.css}" type="text/css"/>
+</head>
+<body>
+    <div th:class="container">
+        <h2 th:text="#{createFtthJob}"></h2>
+        <form>
+            <div th:class="form-group">
+                <label th:for="username" th:text="#{ftthCheckerUsernameLabel}"></label>
+                <input th:type="text" th:disabled="true" th:id="username" th:value="${ftthCheckerUsername}"
+                    th:class="form-control"/>
+            </div>
+            <button th:type="submit" th:class="'btn btn-default'" th:text="#{addFtthJobButton}"></button>
+        </form>
+    </div>
+</body>
+</html>

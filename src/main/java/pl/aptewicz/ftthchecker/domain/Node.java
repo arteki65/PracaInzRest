@@ -1,9 +1,17 @@
 package pl.aptewicz.ftthchecker.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import pl.aptewicz.ftthchecker.dto.NodeDto;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Node {
 
 	@Id
@@ -13,32 +21,9 @@ public class Node {
 
 	private Double y;
 
-	public Node() {
-		// do nothing, using by jpa
+	public Node(NodeDto node) {
+		name = node.getName();
+		x = node.getX();
+		y = node.getY();
 	}
-
-	public Long getName() {
-		return name;
-	}
-
-	public void setName(Long name) {
-		this.name = name;
-	}
-
-	public Double getX() {
-		return x;
-	}
-
-	public void setX(Double x) {
-		this.x = x;
-	}
-
-	public Double getY() {
-		return y;
-	}
-
-	public void setY(Double y) {
-		this.y = y;
-	}
-
 }

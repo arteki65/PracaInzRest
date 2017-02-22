@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link th:rel="stylesheet" th:href="@{/resources/bootstrap-3.3.7-dist/css/bootstrap.min.css}" type="text/css"/>
+</head>
+<body>
+<div class="container">
+    <div th:class="row">
+        <form th:method="POST" th:action="@{/logout}" th:class="'col-md-2 col-md-offset-10'">
+            <label>
+                <input th:value="#{logout}" th:type="submit"/>
+            </label>
+        </form>
+    </div>
+    <div th:class="row">
+        <h2 th:text="#{listOfServicemen}" th:style="'text-align: center'" th:class="'col-md-6 col-md-offset-3'"></h2>
+    </div>
+    <div th:class="row">
+        <div th:class="'list-group col-md-4 col-md-offset-4'">
+            <a th:each="ftthCheckerUser : ${ftthCheckerUsers}"
+               th:text="${ftthCheckerUser.username}" th:class="list-group-item"
+               th:href="@{|ftthJob?ftthCheckerUsername=${ftthCheckerUser.username}|}"
+               th:style="'text-align: center'"></a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
